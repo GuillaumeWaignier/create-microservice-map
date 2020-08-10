@@ -1,0 +1,8 @@
+source-type,source-name,destination-type,destination-name
+topic,catalog-snapshot-v1,api,api-catalog
+topic,stock-snapshot-v1,api,api-stock
+topic,order-snapshot-v1,api,loader-stock
+api,loader-stock,topic,stock-snapshot-v1
+api,loader-catalog,topic,catalog-snapshot-v1
+topic,site-snapshot-v1,api,api-site
+api,loader-site,topic,site-snapshot-v1

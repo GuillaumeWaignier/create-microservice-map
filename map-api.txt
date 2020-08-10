@@ -1,0 +1,4 @@
+source-type,source-name,destination-type,destination-name
+api,api-cart,api,api-catalog
+api,api-cart,api,api-stock
+api,api-stock,api,api-site
