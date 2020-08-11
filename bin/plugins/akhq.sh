@@ -41,10 +41,10 @@ function akhq_create_link {
         AKHQ_RIGHT_TOPIC=`echo "${AKHQ_RIGHT_J}" | jq -r .resource.name`
         if [ "${AKHQ_RIGHT_OPERATION=}" == "READ" ]
         then
-          echo "topic,${AKHQ_RIGHT_TOPIC},api,${AKHQ_ACL_I_NAME}" >> ${OUTPUT_FILE}
+          echo "topic_${AKHQ_RIGHT_TOPIC},api_${AKHQ_ACL_I_NAME}" >> ${OUTPUT_FILE}
         elif [ "${AKHQ_RIGHT_OPERATION=}" == "WRITE" ]
         then
-          echo "api,${AKHQ_ACL_I_NAME},topic,${AKHQ_RIGHT_TOPIC}" >> ${OUTPUT_FILE}
+          echo "api_${AKHQ_ACL_I_NAME},topic_${AKHQ_RIGHT_TOPIC}" >> ${OUTPUT_FILE}
         fi
       fi
       j=$(( j+1 ))

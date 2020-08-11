@@ -44,7 +44,7 @@ function apim_create_link {
       APIM_SUBCRIPTION_J_NAME=`echo "${APIM_SUBCRIPTION_J}" | jq -r .name`
 
 
-      echo "api,${APIM_APPLICATION_I_NAME},api,${APIM_SUBCRIPTION_J_NAME}" >> ${OUTPUT_FILE}
+      echo "api_${APIM_APPLICATION_I_NAME},api_${APIM_SUBCRIPTION_J_NAME}" >> ${OUTPUT_FILE}
       j=$(( j+1 ))
     done
 
