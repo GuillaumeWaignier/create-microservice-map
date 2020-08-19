@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  create-microservice-map:
+    image: "ianitrix/create-microservice-map:latest"
+    hostname: create-microservice-map
+    environment:
+      - APIM_USER=admin
+      - APIM_PASS=admin
+      - APIM_URL=http://management_api:8083
+      - AKHQ_URL=http://akhq:8080
+      - AKHQ_USER=admin
+      - AKHQ_PASSWORD=admin
+      - AKHQ_CLUSTER=docker-kafka-server
+    restart: on-failure
+    ports:
+      - 8081:80
+    networks:
+      - net
+
+networks:
+  net:
+    external:
+      name: net

@@ -13,13 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-version: '3.5'
+version: '3.7'
 
 networks:
   frontend:
     name: frontend
   storage:
     name: storage
+  net:
+    external:
+      name: net
 
 volumes:
   datamongo: {}
@@ -28,7 +31,7 @@ volumes:
 services:
   mongodb:
     image: mongo:${MONGODB_VERSION:-3.4}
-    container_name: gio_apim_mongodb
+    hostname: mongodb
     restart: always
     volumes:
       - datamongo:/data/db
@@ -38,7 +41,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-6.3.1}
-    container_name: gio_apim_elasticsearch
+    hostname: elasticsearch
     restart: always
     volumes:
       - dataelasticsearch:/usr/share/elasticsearch/data
@@ -60,7 +63,7 @@ services:
 
   gateway:
     image: graviteeio/gateway:${APIM_VERSION:-1}
-    container_name: gio_apim_gateway
+    hostname: gateway
     restart: always
     ports:
       - "8082:8082"
@@ -79,7 +82,7 @@ services:
 
   management_api:
     image: graviteeio/management-api:${APIM_VERSION:-1}
-    container_name: gio_apim_management_api
+    hostname: management_api
     restart: always
     ports:
       - "8083:8083"
@@ -97,10 +100,11 @@ services:
     networks:
       - storage
       - frontend
+      - net
 
   management_ui:
     image: graviteeio/management-ui:${APIM_VERSION:-1}
-    container_name: gio_apim_management_ui
+    hostname: management_ui
     restart: always
     ports:
       - "8084:80"

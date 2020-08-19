@@ -5,7 +5,7 @@ services:
     hostname: zookeeper
     command: zookeeper-server-start
     networks:
-      - confluent
+      - net
     environment:
       - KAFKA_SERVER_ID=1
       - KAFKA_clientPort=2181
@@ -28,16 +28,14 @@ services:
     entrypoint: "kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=admin-secret]' --entity-type users --entity-name admin"
     restart: on-failure
     networks:
-      - confluent
+      - net
 
   kafka:
     image: "ianitrix/kafka:${CONFLUENT_VERSION}"
     hostname: kafka
     command: kafka-server-start
-    ports:
-      - 9092:9092
     networks:
-      - confluent
+      - net
     depends_on:
       - zookeeper
     environment:
@@ -75,7 +73,7 @@ services:
       - ./admin.config:/admin.config:ro
     restart: on-failure
     networks:
-      - confluent
+      - net
 
 #  kafka-connect:
 #    image: "ianitrix/kafka:${CONFLUENT_VERSION}"
@@ -118,8 +116,9 @@ services:
 
   akhq:
     image: tchiotludo/akhq:${AKHQ_VERSION}
+    hostname: akhq
     networks:
-      - confluent
+      - net
     ports:
       - "8080:8080"
     environment:
@@ -138,5 +137,6 @@ services:
 
 
 networks:
-  confluent:
-    name: confluent
+  net:
+    external:    
+      name: net
