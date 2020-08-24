@@ -6,10 +6,11 @@ then
   exit 0
 fi
 
-echo "Run akhq plugin"
+echo "[AKHQ] Run akhq plugin"
 
 
 function akhq_list_acl {
+  echo "[AKHQ] Get all ACLs"
   AKHQ_ACL=`curl -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/acls`
 }
 
@@ -17,9 +18,14 @@ function akhq_create_link {
 
   AKHQ_ACL_LENGTH=`echo "${AKHQ_ACL}" | jq length`
 
+  echo "[AKHQ] There is ${AKHQ_ACL_LENGTH} User ID"
+
   i=0
   while [ "$i" -lt "${AKHQ_ACL_LENGTH}" ]
   do
+
+    echo "[AKHQ] Collect acl ${i}/${AKHQ_ACL_LENGTH}"
+
     AKHQ_ACL_I=`echo "${AKHQ_ACL}" | jq .[$i]`
 
 
@@ -57,6 +63,4 @@ function akhq_create_link {
 
 
 akhq_list_acl
-echo "$AKHQ_ACL"
-
 akhq_create_link
