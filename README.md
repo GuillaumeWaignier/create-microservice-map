@@ -30,7 +30,7 @@ services:
       - 8080:80
 ```
 
-Then open the following URL to dsiplay the graph
+Then open the following URL to display the graph
 
 ```bash
 http://localhost:8080
@@ -49,7 +49,7 @@ All configurations are done with environment variables.
 |  APIM_USER    |               | User login   |
 |  APIM_PASS    |               | Password |
 
-* Kafka IHM [Akhq](https://github.com/tchiotludo/akhq) (version 0.14 min)
+* Kafka IHM [Akhq](https://akhq.io/) (version 0.14 min)
 
 | Configuration | Default value | Comment  |
 | ------------- |:-------------:| -----:|
@@ -67,8 +67,9 @@ A very simple HTML page running in *nginx* display the graph.
 
 ## Test
 
-If you want to test, Do (these commands must be executed at the project root folder):
+If you want to test, there are several docker-compose files used to simulate an e-commerce SI.
 
+First, clone the repo and start the docker network
 
 ```bash
 # Clone the repo
@@ -77,17 +78,35 @@ git clone https://github.com/GuillaumeWaignier/create-microservice-map.git
 # Start the docker netwok
 cd test
 docker-compose up -d
+```
 
+Then, create the Gravitee API Management
+
+```bash
 # Start Gravitee and all its dependencies (MongoDB, Elastic)
 cd test/gravitee
 docker-compose up -d
+```
 
+You can use the Gravitee UI to see the APIs and subscriptions at [http://localhost:8084](http://localhost:8084).
+Login and password are *admin*/*admin*
+
+You can create Kafka topic with
+```bash
 # Start AKHQ and all its dependencies (Zookeeper, Kafka)
 cd test/kafka
 docker-compose up -d
+```
 
+You can use the AKHQ to see the kafka topic and the associated ACLs at [http://localhost:8080](http://localhost:8080).
+
+You can create the graph with
+
+```bash
 # Create the graph
 docker-compose up -d
 ```
 
-Then open the [graph](http://localhost:8080).
+Then open the graph at [http://localhost:8081](http://localhost:8081).
+
+![Graphe](./graph.png)
