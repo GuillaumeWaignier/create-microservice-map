@@ -7,20 +7,9 @@ IFS="
 "
 
 export OUTPUT_FILE="${base_dir}/links.cvs"
-NODES_FILE="${base_dir}/nodes.txt" 
-JSON_FILE="/var/www/html/graph.json"
+export NODES_FILE="${base_dir}/nodes.txt"
+export JSON_FILE="/var/www/html/graph.json"
 
-
-# config for gravitee
-#export APIM_USER="admin"
-#export APIM_PASS="admin"
-#export APIM_URL="http://localhost:8083"
-
-# Config for kafka
-#export AKHQ_URL="http://localhost:8080"
-#export AKHQ_USER="admin"
-#export AKHQ_PASSWORD="admin"
-#export AKHQ_CLUSTER="docker-kafka-server"
 
 
 function collect {
@@ -62,7 +51,10 @@ function create_node {
     then
       echo -n "," >> ${JSON_FILE}
     fi
-    echo "{\"name\":\"${line}\",\"width\":260,\"height\":40}" >> ${JSON_FILE}
+
+    TYPE=`echo "${line}" | cut -d_ -f1`
+
+    echo "{\"name\":\"${line}\",\"width\":260,\"height\":40, \"type\":\"${TYPE}\" }" >> ${JSON_FILE}
     first=0
   done
 
@@ -105,7 +97,12 @@ function create_link {
     source=$(get_node_number "$source_name")
     target=$(get_node_number "$target_name")
 
-    echo "{\"source\":${source},\"target\":${target}}" >> ${JSON_FILE}
+    source_type=`echo "${source_name}" | cut -d_ -f1`
+    simple_source_name=`echo "${source_name}" | cut -d_ -f2`
+    target_type=`echo "${target_name}" | cut -d_ -f1`
+    simple_target_name=`echo "${target_name}" | cut -d_ -f2`
+
+    echo "{\"source\":${source},\"target\":${target}, \"sourceName\":\"${simple_source_name}\", \"sourceType\":\"${source_type}\", \"targetName\":\"${simple_target_name}\", \"targetType\":\"${target_type}\"}" >> ${JSON_FILE}
     i=$(( i + 1 ))
   done
 
@@ -126,3 +123,11 @@ function create_json {
 
 collect
 create_json
+
+if [ ! -z "${NEO4J_URL}" ]
+then
+  echo "Create neo4j graph"
+  {
+    ./create-neo4j-graph.sh
+  } 2>&1
+fi

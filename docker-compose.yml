@@ -4,6 +4,7 @@ services:
     image: "ianitrix/create-microservice-map:latest"
     hostname: create-microservice-map
     environment:
+      - NEO4J_URL=http://neo4j:7474
       - APIM_USER=admin
       - APIM_PASS=admin
       - APIM_URL=http://management_api:8083
@@ -12,8 +13,22 @@ services:
       - AKHQ_PASSWORD=admin
       - AKHQ_CLUSTER=docker-kafka-server
     restart: on-failure
+    depends_on:
+      - neo4j
     ports:
       - 8081:80
+    networks:
+      - net
+
+  neo4j:
+    image: "neo4j:4.1.1"
+    hostname: neo4j
+    restart: on-failure
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - 7474:7474
+      - 7687:7687
     networks:
       - net
 
