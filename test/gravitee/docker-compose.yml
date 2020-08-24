@@ -47,7 +47,7 @@ services:
       - dataelasticsearch:/usr/share/elasticsearch/data
     environment:
       - http.host=0.0.0.0
-      - transport.host=0.0.0.0
+      - transport.host=localhost
       - xpack.security.enabled=false
       - xpack.monitoring.enabled=false
       - cluster.name=elasticsearch
@@ -101,6 +101,17 @@ services:
       - storage
       - frontend
       - net
+
+  create-api:
+    image: "debian:10"
+    depends_on:
+      - management_api
+    entrypoint: "/create-api.sh"
+    volumes:
+      - ./create-api.sh:/create-api.sh:ro
+    restart: on-failure
+    networks:
+      - frontend
 
   management_ui:
     image: graviteeio/management-ui:${APIM_VERSION:-1}

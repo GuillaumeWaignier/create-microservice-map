@@ -37,17 +37,3 @@ kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-stock --producer --topic 'stock-snapshot-v1'
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-stock --consumer --topic 'order-snapshot-v1' --group 'stock'
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-stock --consumer --topic 'stock-snapshot-v1' --group 'stock'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
