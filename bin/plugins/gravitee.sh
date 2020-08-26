@@ -43,7 +43,9 @@ function apim_create_link {
 
     APIM_APPLICATION_I_NAME=`echo "${APIM_APPLICATION_I}" | jq -r .name`
     APIM_APPLICATION_I_ID=`echo "${APIM_APPLICATION_I}" | jq -r .id`
-    APIM_APPLICATION_I_SUBCRIPTION=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${APIM_URL}/management/applications/${APIM_APPLICATION_I_ID}/subscribed`
+
+    APIM_APPLICATION_I_SUBCRIPTION_FULL=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${APIM_URL}/management/applications/${APIM_APPLICATION_I_ID}/subscriptions?status=ACCEPTED`
+    APIM_APPLICATION_I_SUBCRIPTION=`echo "${APIM_APPLICATION_I_SUBCRIPTION_FULL}" | jq .data`
 
     APIM_SUBCRIPTION_LENGTH=`echo "${APIM_APPLICATION_I_SUBCRIPTION}" | jq length`
     j=0
@@ -51,8 +53,8 @@ function apim_create_link {
     do
       APIM_SUBCRIPTION_J=`echo "${APIM_APPLICATION_I_SUBCRIPTION}" | jq .[$j]`
 
-      APIM_SUBCRIPTION_J_NAME=`echo "${APIM_SUBCRIPTION_J}" | jq -r .name`
-
+      APIM_SUBCRIPTION_J_ID=`echo "${APIM_SUBCRIPTION_J}" | jq .api`
+      APIM_SUBCRIPTION_J_NAME=`echo "${APIM_APPLICATION_I_SUBCRIPTION_FULL}" | jq -r ".metadata.${APIM_SUBCRIPTION_J_ID}.name"`
 
       echo "api_${APIM_APPLICATION_I_NAME},api_${APIM_SUBCRIPTION_J_NAME}" >> ${OUTPUT_FILE}
       j=$(( j+1 ))
