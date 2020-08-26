@@ -9,6 +9,8 @@ i=0
 while [ "$i" -lt "${NODES_LENGTH}" ]
 do
 
+  echo "[neo4J] Create node ${i}/${NODES_LENGTH}"
+
   NODE=`echo "${NODES}" | jq ".[$i]"`
   NAME=`echo "${NODE}" | jq -r .name`
   TYPE=`echo "${NAME}" | cut -d_ -f1`
@@ -27,6 +29,8 @@ i=0
 while [ "$i" -lt "${LINKS_LENGTH}" ]
 do
 
+  echo "[neo4J] Create link ${i}/${LINKS_LENGTH}"
+
   LINK=`echo "${LINKS}" | jq ".[$i]"`
   SOURCE=`echo "${LINK}" | jq -r .source`
   TARGET=`echo "${LINK}" | jq -r .target`
@@ -35,7 +39,9 @@ do
 
 
 
-  curl -vvv -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Id = ${SOURCE} AND b.Id = ${TARGET} CREATE (a)-[r:RELTYPE]->(b) RETURN type(r)\"}]}"
+  curl -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Id = ${SOURCE} AND b.Id = ${TARGET} CREATE (a)-[r:RELTYPE]->(b) RETURN type(r)\"}]}"
 
   i=$(( i+1 ))
 done
+
+echo "[neo4J] Graph create successfully. Open ${NEO4J_URL}"
