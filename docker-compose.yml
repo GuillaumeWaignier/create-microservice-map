@@ -31,6 +31,12 @@ services:
       - 7687:7687
     networks:
       - net
+    healthcheck:
+      test: test `wget --spider -S http://localhost:7474 2>&1 | grep "HTTP/" |  awk '{print $$2}'` = 200
+      interval: 2s
+      timeout: 2s
+      retries: 10
+      start_period: 2s
 
 networks:
   net:
