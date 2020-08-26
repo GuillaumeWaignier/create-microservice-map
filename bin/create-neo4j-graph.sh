@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z "${NEO4J_URL}" ]
+then
+  exit 0
+fi
+
+echo "Create neo4J graph"
+
 GRAPH=`cat "${JSON_FILE}"`
 
 NODES=`echo "${GRAPH}" | jq ".nodes"`
@@ -16,7 +23,7 @@ do
   TYPE=`echo "${NAME}" | cut -d_ -f1`
   NAME=`echo "${NAME}" | cut -d_ -f2`
 
-  curl -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name : \\\"${NAME}\\\", Id: $i })\"}]}"
+  curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name : \\\"${NAME}\\\", Id: $i })\"}]}"
 
   i=$(( i+1 ))
 done
@@ -37,7 +44,7 @@ do
   SOURCE_TYPE=`echo "${LINK}" | jq -r .sourceType`
   TARGET_TYPE=`echo "${LINK}" | jq -r .targetType`
 
-  curl -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Id = ${SOURCE} AND b.Id = ${TARGET} CREATE (a)-[r:RELTYPE]->(b) RETURN type(r)\"}]}"
+  curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Id = ${SOURCE} AND b.Id = ${TARGET} CREATE (a)-[r:RELTYPE]->(b) RETURN type(r)\"}]}"
 
   i=$(( i+1 ))
 done

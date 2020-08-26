@@ -124,10 +124,6 @@ function create_json {
 collect
 create_json
 
-if [ ! -z "${NEO4J_URL}" ]
-then
-  echo "Create neo4j graph"
-  {
-    ./create-neo4j-graph.sh
-  } 2>&1
-fi
+{
+  ./create-neo4j-graph.sh
+} 2>&1
