@@ -119,11 +119,36 @@ function create_json {
   echo "End create json"
 }
 
+function check_neo4j {
+  echo "[neo4J] Check neo4j"
+  if [ `curl -s -o /dev/null -w "%{http_code}" ${NEO4J_URL}` = 200 ]
+  then
+    echo "[neo4J] Neo4j is up at ${NEO4J_URL}"
+  else
+    echo "[neo4J] Failed to contact neo4j at ${NEO4J_URL}"
+    exit 1
+  fi
+}
 
+function create_neo4j_graph {
+  {
+    ./create-neo4j-graph.sh
+  } 2>&1
+}
+
+function clear_neo4j {
+  echo "[neo4J] Clear neo4j"
+  curl -s -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n) DETACH DELETE n\"}]}"
+}
+
+
+if [ ! -z "${NEO4J_URL}" ]
+then
+  check_neo4j
+  clear_neo4j
+fi
 
 collect
 create_json
+create_neo4j_graph
 
-{
-  ./create-neo4j-graph.sh
-} 2>&1
