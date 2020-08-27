@@ -7,7 +7,7 @@ Create a graph between all related elements, such as API, Kafka topic, by intros
 
 ## Usage (docker)
 
-Create a docker compose like this following:
+Create a docker compose file (*docker-compose.yml*) like this following:
 
 ```yaml
 version: "3.7"
@@ -16,6 +16,7 @@ services:
     image: "ianitrix/create-microservice-map:latest"
     hostname: create-microservice-map
     environment:
+      - NEO4J_URL=http://neo4j:7474
       # Gravitee Configuration
       - APIM_URL=http://management_api:8083
       - APIM_USER=admin
@@ -28,13 +29,31 @@ services:
     restart: on-failure
     ports:
       - 8080:80
+    networks:
+      - net
+
+  neo4j:
+    image: "neo4j:4.1.1"
+    hostname: neo4j
+    restart: on-failure
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - 7474:7474
+      - 7687:7687
+    networks:
+      - net
+
+networks:
+  net:
+    name: net    
 ```
 
-Then open the following URL to display the graph
+Then open the following URL to display the graph JS [http://localhost:8080](http://localhost:8080)
+or open this url [http://localhost:7474](http://localhost:7474) for the [Neo4J](https://neo4j.com) graph.
 
-```bash
-http://localhost:8080
-```
+
+
 
 ## Configuration
 
