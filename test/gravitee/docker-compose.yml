@@ -16,10 +16,6 @@
 version: '3.7'
 
 networks:
-  frontend:
-    name: frontend
-  storage:
-    name: storage
   net:
     external:
       name: net
@@ -37,7 +33,7 @@ services:
       - datamongo:/data/db
       - ./logs/apim-mongodb:/var/log/mongodb
     networks:
-      - storage
+      - net
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-6.3.1}
@@ -59,7 +55,7 @@ services:
         hard: -1
       nofile: 65536
     networks:
-      - storage
+      - net
 
   gateway:
     image: graviteeio/gateway:${APIM_VERSION:-1}
@@ -77,8 +73,7 @@ services:
       - gravitee_ratelimit_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
       - gravitee_reporters_elasticsearch_endpoints_0=http://elasticsearch:9200
     networks:
-      - storage
-      - frontend
+      - net
 
   management_api:
     image: graviteeio/management-api:${APIM_VERSION:-1}
@@ -98,8 +93,6 @@ services:
       - gravitee_management_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
       - gravitee_analytics_elasticsearch_endpoints_0=http://elasticsearch:9200
     networks:
-      - storage
-      - frontend
       - net
 
   create-api:
@@ -111,7 +104,7 @@ services:
       - ./create-api.sh:/create-api.sh:ro
     restart: on-failure
     networks:
-      - frontend
+      - net
 
   management_ui:
     image: graviteeio/management-ui:${APIM_VERSION:-1}
@@ -126,4 +119,4 @@ services:
     volumes:
       - ./logs/apim-management-ui:/var/log/nginx
     networks:
-      - frontend
+      - net

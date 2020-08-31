@@ -75,44 +75,84 @@ services:
     networks:
       - net
 
-#  kafka-connect:
-#    image: "ianitrix/kafka:${CONFLUENT_VERSION}"
-#    command: connect-distributed
-#    hostname: kafka-connect
-#    ports:
-#      - 8083:8083
-#    networks:
-#      - confluent 
-#    healthcheck:
-#      test: test `curl -s -o /dev/null -w "%{http_code}" http://localhost:8083/connectors` = 200
-#      interval: 2s
-#      timeout: 2s
-#      retries: 10
-#      start_period: 2s
-#    environment:
-#      - KAFKA_OPTS=-Xms512m -Xmx512m
-#      - KAFKA_bootstrap_servers=kafka:9092
-#      - KAFKA_rest_port=8083
-#      - KAFKA_group_id=connect
-#      - KAFKA_config_storage_topic=_connect-config
-#      - KAFKA_offset_storage_topic=_connect-offsets
-#      - KAFKA_status_storage_topic=_connect-status
-#      - KAFKA_replication_factor=1
-#      - KAFKA_config_storage_replication_factor=1
-#      - KAFKA_offset_storage_replication_factor=1
-#      - KAFKA_status_storage_replication_factor=1
-#      - KAFKA_key_converter=org.apache.kafka.connect.json.JsonConverter
-#      - KAFKA_value_converter=org.apache.kafka.connect.json.JsonConverter
-#      - KAFKA_key_converter_schemas_enable=false
-#      - KAFKA_value_converter_schemas_enable=false
-#      - KAFKA_internal_key_converter=org.apache.kafka.connect.json.JsonConverter
-#      - KAFKA_internal_value_converter=org.apache.kafka.connect.json.JsonConverter
-#      - KAFKA_rest_advertised_host_name=kafka-connect
-#      - KAFKA_plugin_path=/confluent-${CONFLUENT_VERSION}/share/java
-#      - KAFKA_log4j_root_loglevel=INFO
-#      - KAFKA_log4j_loggers=org.reflections=ERROR
-#    restart: on-failure
+  kafka-connect:
+    image: "ianitrix/kafka:${CONFLUENT_VERSION}"
+    entrypoint:
+      - /init-connector.sh
+    hostname: kafka-connect
+    networks:
+      - net
+    depends_on:
+      - kafka
+    volumes:
+      - "./init-connector.sh:/init-connector.sh:ro"
+    healthcheck:
+      test: test `curl -s -o /dev/null -w "%{http_code}" http://localhost:8083/connectors` = 200
+      interval: 2s
+      timeout: 2s
+      retries: 10
+      start_period: 2s
+    environment:
+      - KAFKA_OPTS=-Xms512m -Xmx512m
+      - KAFKA_bootstrap_servers=kafka:9092
+      - KAFKA_rest_port=8083
+      - KAFKA_group_id=connect
+      - KAFKA_config_storage_topic=_connect-config
+      - KAFKA_offset_storage_topic=_connect-offsets
+      - KAFKA_status_storage_topic=_connect-status
+      - KAFKA_replication_factor=1
+      - KAFKA_config_storage_replication_factor=1
+      - KAFKA_offset_storage_replication_factor=1
+      - KAFKA_status_storage_replication_factor=1
+      - KAFKA_key_converter=org.apache.kafka.connect.json.JsonConverter
+      - KAFKA_value_converter=org.apache.kafka.connect.json.JsonConverter
+      - KAFKA_key_converter_schemas_enable=false
+      - KAFKA_value_converter_schemas_enable=false
+      - KAFKA_internal_key_converter=org.apache.kafka.connect.json.JsonConverter
+      - KAFKA_internal_value_converter=org.apache.kafka.connect.json.JsonConverter
+      - KAFKA_rest_advertised_host_name=kafka-connect
+      - KAFKA_plugin_path=/confluent-${CONFLUENT_VERSION}/share/java,/confluent-${CONFLUENT_VERSION}/share/confluent-hub-components
+      - KAFKA_log4j_root_loglevel=INFO
+      - KAFKA_log4j_loggers=org.reflections=ERROR
+      - KAFKA_sasl_mechanism=SCRAM-SHA-512
+      - KAFKA_security_protocol=SASL_PLAINTEXT
+      - KAFKA_sasl_jaas_config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="admin-secret";
+    restart: on-failure
 
+
+  load-site-connector:
+    image: "curlimages/curl:7.69.0"
+    hostname: curl
+    entrypoint:
+      - "/deployConnector.sh"
+      - "http://kafka-connect:8083"
+      - ""
+      - "body.json"
+    depends_on:
+      - kafka-connect
+    networks:
+      - net
+    restart: on-failure
+    volumes:
+      - ./deployConnector.sh:/deployConnector.sh:ro
+      - ./site-to-mongo.json:/body.json:ro
+
+  load-catalog-connector:
+    image: "curlimages/curl:7.69.0"
+    hostname: curl
+    entrypoint:
+      - "/deployConnector.sh"
+      - "http://kafka-connect:8083"
+      - ""
+      - "body.json"
+    depends_on:
+      - kafka-connect
+    networks:
+      - net
+    restart: on-failure
+    volumes:
+      - ./deployConnector.sh:/deployConnector.sh:ro
+      - ./catalog-to-mongo.json:/body.json:ro
 
   akhq:
     image: tchiotludo/akhq:${AKHQ_VERSION}

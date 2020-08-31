@@ -1,0 +1,12 @@
+{
+  "name":"catalog-to-mongo",
+  "config": {
+    "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+    "name":"catalog-to-mongo",
+    "topics" : "catalog-snapshot-v1",
+    "database": "catalog",
+    "connection.uri": "mongodb://mongodb:27017/catalog",
+    "errors.tolerance":"none",
+    "errors.retry.timeout":-1
+  }
+}

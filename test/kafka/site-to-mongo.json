@@ -1,0 +1,12 @@
+{
+  "name":"site-to-mongo",
+  "config": {
+    "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+    "name":"site-to-mongo",
+    "topics" : "site-snapshot-v1",
+    "database": "site",
+    "connection.uri": "mongodb://mongodb:27017/site",
+    "errors.tolerance":"none",
+    "errors.retry.timeout":-1
+  }
+}
