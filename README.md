@@ -26,6 +26,7 @@ services:
       - AKHQ_USER=admin
       - AKHQ_PASSWORD=admin
       - AKHQ_CLUSTER=docker-kafka-server
+      - AKHQ_CONNECT_CLUSTER=default
     restart: on-failure
     ports:
       - 8080:80
