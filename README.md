@@ -126,6 +126,10 @@ You can create the graph with
 docker-compose up -d
 ```
 
-Then open the graph at [http://localhost:8081](http://localhost:8081).
+Then open the simple JS graph at [http://localhost:8081](http://localhost:8081).
 
 ![Graphe](./graph.png)
+
+Or open the neo4j graph at [http://localhost:7474](http://localhost:7474).
+
+![Graphe](./neo4j.png)
