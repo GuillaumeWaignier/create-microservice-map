@@ -1,8 +1,0 @@
-source-type_source-name,destination-type_destination-name
-topic_catalog-snapshot-v1,api_api-catalog
-topic_stock-snapshot-v1,api_api-stock
-topic_order-snapshot-v1,api_loader-stock
-api_loader-stock,topic_stock-snapshot-v1
-api_loader-catalog,topic_catalog-snapshot-v1
-topic_site-snapshot-v1,api_api-site
-api_loader-site,topic_site-snapshot-v1

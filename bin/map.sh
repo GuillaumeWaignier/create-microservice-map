@@ -6,8 +6,8 @@ base_dir=$(dirname $0)
 IFS="
 "
 
-export OUTPUT_FILE="${base_dir}/links.cvs"
-export NODES_FILE="${base_dir}/nodes.txt"
+export OUTPUT_FILE="${base_dir}/links.json"
+export NODES_FILE="${base_dir}/nodes.json"
 export JSON_FILE="/var/www/html/graph.json"
 
 
@@ -15,7 +15,7 @@ export JSON_FILE="/var/www/html/graph.json"
 function collect {
   start=`date -u +%FT%T.%3NZ`
   echo "Start collect at ${start}"
-  echo "source-type_source-name,destination-type_destination-name" > ${OUTPUT_FILE}
+  touch ${OUTPUT_FILE}
 
   for plugin in `ls "${base_dir}/plugins"`
   do
@@ -29,13 +29,21 @@ function collect {
   echo "End collect at ${end}"
 }
 
-
 function create_node {
 
   echo "Compute nodes ..."
 
-  cat "${OUTPUT_FILE}" | tail -n +2 | cut -d, -f1 > ${NODES_FILE}
-  cat "${OUTPUT_FILE}" | tail -n +2 | cut -d, -f2 >> ${NODES_FILE}
+  for line in `cat "${OUTPUT_FILE}"`
+  do
+    SOURCE_NAME=`echo "${line}" | jq -r .sourceName`
+    SOURCE_TYPE=`echo "${line}" | jq -r .sourceType`
+    TARGET_NAME=`echo "${line}" | jq -r .targetName`
+    TARGET_TYPE=`echo "${line}" | jq -r .targetType`
+
+    echo "{\"type\":\"${SOURCE_TYPE}\",\"name\":\"${SOURCE_NAME}\"}" >> ${NODES_FILE}
+    echo "{\"type\":\"${TARGET_TYPE}\",\"name\":\"${TARGET_NAME}\"}" >> ${NODES_FILE}
+  done
+
   cat "${NODES_FILE}" | sort | uniq > ${NODES_FILE}.uniq
   mv ${NODES_FILE}.uniq ${NODES_FILE}
 
@@ -52,9 +60,10 @@ function create_node {
       echo -n "," >> ${JSON_FILE}
     fi
 
-    TYPE=`echo "${line}" | cut -d_ -f1`
+    TYPE=`echo "${line}" | jq -r .type`
+    NAME=`echo "${line}" | jq -r .name`
 
-    echo "{\"name\":\"${line}\",\"width\":260,\"height\":40, \"type\":\"${TYPE}\" }" >> ${JSON_FILE}
+    echo "{\"name\":\"${NAME}\",\"width\":260,\"height\":40, \"type\":\"${TYPE}\" }" >> ${JSON_FILE}
     first=0
   done
 
@@ -63,7 +72,7 @@ function create_node {
 
 function get_node_number {
 
-   pos=`cat "${NODES_FILE}" | grep -n "^${1}$" | cut -d: -f1`
+   pos=`cat "${NODES_FILE}" | grep -n "^{\"type\":\"${1}\",\"name\":\"${2}\"}$" | cut -d: -f1`
 
    pos=$(( pos -1 ))
    echo "$pos"
@@ -80,7 +89,7 @@ function create_link {
   LINKS_NUMBER=`cat ${OUTPUT_FILE} | wc -l`
 
   i=1
-  for line in `cat "${OUTPUT_FILE}" | tail -n +2`
+  for line in `cat "${OUTPUT_FILE}"`
   do
 
     echo "Create link ${i}/${LINKS_NUMBER}"
@@ -91,18 +100,16 @@ function create_link {
     fi
 
 
-    source_name=`echo "${line}" | cut -d, -f1`
-    target_name=`echo "${line}" | cut -d, -f2`
+    SOURCE_NAME=`echo "${line}" | jq -r .sourceName`
+    SOURCE_TYPE=`echo "${line}" | jq -r .sourceType`
+    TARGET_NAME=`echo "${line}" | jq -r .targetName`
+    TARGET_TYPE=`echo "${line}" | jq -r .targetType`
+    LINK_NAME=`echo "${line}" | jq -r .linkName`
 
-    source=$(get_node_number "$source_name")
-    target=$(get_node_number "$target_name")
+    source=$(get_node_number "${SOURCE_TYPE}" "${SOURCE_NAME}")
+    target=$(get_node_number "${TARGET_TYPE}" "${TARGET_NAME}")
 
-    source_type=`echo "${source_name}" | cut -d_ -f1`
-    simple_source_name=`echo "${source_name}" | cut -d_ -f2`
-    target_type=`echo "${target_name}" | cut -d_ -f1`
-    simple_target_name=`echo "${target_name}" | cut -d_ -f2`
-
-    echo "{\"source\":${source},\"target\":${target}, \"sourceName\":\"${simple_source_name}\", \"sourceType\":\"${source_type}\", \"targetName\":\"${simple_target_name}\", \"targetType\":\"${target_type}\"}" >> ${JSON_FILE}
+    echo "{\"source\":${source},\"target\":${target}, \"sourceName\":\"${SOURCE_NAME}\", \"sourceType\":\"${SOURCE_TYPE}\", \"targetName\":\"${TARGET_NAME}\", \"targetType\":\"${TARGET_TYPE}\", \"linkName\": \"${LINK_NAME}\"}" >> ${JSON_FILE}
     i=$(( i + 1 ))
   done
 
