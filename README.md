@@ -18,14 +18,15 @@ services:
     environment:
       - NEO4J_URL=http://neo4j:7474
       # Gravitee Configuration
-      - APIM_URL=http://management_api:8083
-      - APIM_USER=admin
-      - APIM_PASS=admin
+      - GRAVITEE1_URL=http://management_api:8083
+      - GRAVITEE1_USER=admin
+      - GRAVITEE1_PASS=admin
       # AKHQ Configuration
       - AKHQ_URL=http://akhq:8080
       - AKHQ_USER=admin
       - AKHQ_PASSWORD=admin
       - AKHQ_CLUSTER=docker-kafka-server
+      # AKHQ Configuration for kafka connect
       - AKHQ_CONNECT_CLUSTER=default
     restart: on-failure
     ports:
@@ -61,13 +62,23 @@ or open this url [http://localhost:7474](http://localhost:7474) for the [Neo4J](
 All configurations are done with environment variables.
 
 
-* API Management [Gravitee](https://www.gravitee.io/)
+* API Management [Gravitee V1.x](https://www.gravitee.io/)
 
-| Configuration | Default value | Comment  |
-| ------------- |:-------------:| -----:|
-|  APIM_URL     |               | URL for Gravitee Management Api |
-|  APIM_USER    |               | User login   |
-|  APIM_PASS    |               | Password |
+| Configuration      | Default value | Comment  |
+| ------------------ |:-------------:| -----:|
+|  GRAVITEE1_URL     |               | URL for Gravitee Management Api |
+|  GRAVITEE1_USER    |               | User login   |
+|  GRAVITEE1_PASS    |               | Password |
+
+* API Management [Gravitee V3.x](https://www.gravitee.io/)
+
+| Configuration      | Default value | Comment  |
+| ------------------ |:-------------:| -----:|
+|  GRAVITEE3_URL     |               | URL for Gravitee Management Api |
+|  GRAVITEE3_USER    |               | User login   |
+|  GRAVITEE3_PASS    |               | Password |
+|  GRAVITEE3_ORGANIZATION    | DEFAULT       | Organization |
+|  GRAVITEE3_ENVIRONMENTS    | DEFAULT       | Environment |
 
 * Kafka IHM [Akhq](https://akhq.io/) (version 0.14 min)
 
@@ -77,7 +88,7 @@ All configurations are done with environment variables.
 |  AKHQ_CLUSTER |               | Cluster name in AKHQ config |
 |  AKHQ_USER    |               | User login   |
 |  AKHQ_PASS    |               | Password |
-
+|  AKHQ_CONNECT_CLUSTER    |               | Optional: used to collect kafka connect plugins |
 
 ## How it's work
 
@@ -134,3 +145,9 @@ Then open the simple JS graph at [http://localhost:8081](http://localhost:8081).
 Or open the neo4j graph at [http://localhost:7474](http://localhost:7474).
 
 ![Graphe](./neo4j.png)
+
+You can then search for sub graph for example:
+
+```bash
+MATCH (a:api { Name: 'api-cart' })-[*0..2]->(b) RETURN a,b
+```
