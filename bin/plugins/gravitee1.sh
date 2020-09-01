@@ -1,42 +1,42 @@
 #!/bin/bash 
 
 
-if [ -z "${APIM_URL}" ]
+if [ -z "${GRAVITEE1_URL}" ]
 then
   exit 0
 fi
 
-echo "[Gravitee] Run gravitee plugin"
+echo "[Gravitee-1] Run gravitee version 1.x plugin"
 
 
 function apim_login {
-  APIM_TOKEN=`curl -k -s -u "${APIM_USER}:${APIM_PASS}" -H "Content-Type: application/json;charset=UTF-8" -XPOST ${APIM_URL}/management/user/login  -d ""`
+  APIM_TOKEN=`curl -k -s -u "${GRAVITEE1_USER}:${GRAVITEE1_PASS}" -H "Content-Type: application/json;charset=UTF-8" -XPOST ${GRAVITEE1_URL}/management/user/login  -d ""`
   APIM_TOKEN=`echo ${APIM_TOKEN} | jq -r .token`
 
   if [[ ! -z "${APIM_TOKEN}" ]]
   then
-    echo "[Gravitee] Successfully logging with APIM ${APIM_URL}"
+    echo "[Gravitee-1] Successfully logging with APIM ${GRAVITEE1_URL}"
   else
-    echo "[Gravitee] Failed to login to gravitee"
+    echo "[Gravitee-1] Failed to login to gravitee"
     exit 1
   fi
 }
 
 
 function apim_application {
-  echo "[Gravitee] GET all applications"
-  APIM_APPLICATION=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${APIM_URL}/management/applications/`
+  echo "[Gravitee-1] GET all applications"
+  APIM_APPLICATION=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${GRAVITEE1_URL}/management/applications/`
 }
 
 function apim_create_link {
 
   APIM_APPLICATION_LENGTH=`echo "${APIM_APPLICATION}" | jq length`
-  echo "[Gravitee] There is ${APIM_APPLICATION_LENGTH} applications"
+  echo "[Gravitee-1] There is ${APIM_APPLICATION_LENGTH} applications"
 
   i=0
   while [ "$i" -lt "${APIM_APPLICATION_LENGTH}" ]
   do
-    echo "[Gravitee] Collect subscription ${i}/${APIM_APPLICATION_LENGTH}"
+    echo "[Gravitee-1] Collect subscription ${i}/${APIM_APPLICATION_LENGTH}"
 
     APIM_APPLICATION_I=`echo "${APIM_APPLICATION}" | jq .[$i] `
 
@@ -44,7 +44,7 @@ function apim_create_link {
     APIM_APPLICATION_I_NAME=`echo "${APIM_APPLICATION_I}" | jq -r .name`
     APIM_APPLICATION_I_ID=`echo "${APIM_APPLICATION_I}" | jq -r .id`
 
-    APIM_APPLICATION_I_SUBCRIPTION_FULL=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${APIM_URL}/management/applications/${APIM_APPLICATION_I_ID}/subscriptions?status=ACCEPTED`
+    APIM_APPLICATION_I_SUBCRIPTION_FULL=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${GRAVITEE1_URL}/management/applications/${APIM_APPLICATION_I_ID}/subscriptions?status=ACCEPTED`
     APIM_APPLICATION_I_SUBCRIPTION=`echo "${APIM_APPLICATION_I_SUBCRIPTION_FULL}" | jq .data`
 
     APIM_SUBCRIPTION_LENGTH=`echo "${APIM_APPLICATION_I_SUBCRIPTION}" | jq length`
@@ -68,20 +68,3 @@ function apim_create_link {
 apim_login
 apim_application
 apim_create_link
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
