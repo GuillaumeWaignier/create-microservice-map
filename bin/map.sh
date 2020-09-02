@@ -9,7 +9,7 @@ IFS="
 export OUTPUT_FILE="${base_dir}/links.json"
 export NODES_FILE="${base_dir}/nodes.json"
 export JSON_FILE="/var/www/html/graph.json"
-
+export ENRICHED_NODES_FILE="/var/www/html/enrichedNodes.csv"
 
 
 function collect {

@@ -65,6 +65,37 @@ function apim_create_link {
 }
 
 
+
+function apim_enrichedApi {
+
+  echo "[Gravitee-1] GET all APIs for enriched data (version, owner, ...)"
+  APIM_APIS=`curl -k -s -H "Authorization: Bearer ${APIM_TOKEN}"  -H "Content-Type: application/json;charset=UTF-8" -XGET ${GRAVITEE1_URL}/management/apis/`
+  APIM_APIS_LENGTH=`echo "${APIM_APIS}" | jq length`
+
+  echo "[Gravitee-1] There is ${APIM_APIS_LENGTH} apis"
+
+  i=0
+  while [ "$i" -lt "${APIM_APIS_LENGTH}" ]
+  do
+    echo "[Gravitee-1] Collect apis ${i}/${APIM_APIS_LENGTH}"
+
+    APIM_API_I=`echo "${APIM_APIS}" | jq .[$i] `
+    APIM_API_I_NAME=`echo "${APIM_API_I}" | jq -r .name`
+    APIM_API_I_VERSION=`echo "${APIM_API_I}" | jq -r .version`
+    APIM_API_I_OWNER=`echo "${APIM_API_I}" | jq -r .owner.displayName`
+    APIM_API_I_CREATED=`echo "${APIM_API_I}" | jq -r .created_at`
+    APIM_API_I_UPDATED=`echo "${APIM_API_I}" | jq -r .updated_at`
+    APIM_API_I_VISIBILITY=`echo "${APIM_API_I}" | jq -r .visibility`
+
+
+    echo "api;${APIM_API_I_NAME};{version:\\\"${APIM_API_I_VERSION}\\\",owner:\\\"${APIM_API_I_OWNER}\\\",createdAt:datetime({epochMillis:${APIM_API_I_CREATED}}),updatedAt:datetime({epochMillis:${APIM_API_I_UPDATED}}),visibility:\\\"${APIM_API_I_VISIBILITY}\\\"}" >> ${ENRICHED_NODES_FILE}
+    i=$(( i+1 ))
+  done
+}
+
+
 apim_login
 apim_application
 apim_create_link
+
+apim_enrichedApi
