@@ -1,7 +1,7 @@
 #! /bin/bash
 
 
-kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic site-snapshot-v1
+kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic site-snapshot-v1 --config cleanup.policy=compact
 kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic catalog-snapshot-v1
 kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic stock-snapshot-v1
 kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic order-snapshot-v1

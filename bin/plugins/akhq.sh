@@ -11,7 +11,7 @@ echo "[AKHQ] Run akhq plugin"
 
 function akhq_list_acl {
   echo "[AKHQ] Get all ACLs"
-  AKHQ_ACL=`curl -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/acls`
+  AKHQ_ACL=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/acls`
 }
 
 function akhq_create_link {
@@ -61,6 +61,48 @@ function akhq_create_link {
 
 }
 
+function akhq_process_topic {
+    echo "[AKHQ] Collect topic ${i}/${nbTopics}"
+
+    TOPIC_NAME=`echo "${TOPIC}" | jq -r .name`
+
+    CONFIG_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic/${TOPIC_NAME}/configs"`
+
+    CLEANUP=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"cleanup.policy\"))[].value"`
+    MIN_INSYNC_REPLICAS=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"min.insync.replicas\"))[].value"`
+
+    echo "topic;${TOPIC_NAME};{cleanup:\\\"${CLEANUP}\\\",minInsyncReplica:${MIN_INSYNC_REPLICAS}}" >> ${ENRICHED_NODES_FILE}
+
+}
+
+function akhq_enriche_node {
+  echo "[AKHQ] Enriche Node"
+
+  page=1
+  i=0
+  LIST_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic?show=ALL&page=${page}"`
+  nbTopics=`echo "${LIST_TOPIC}" | jq .total`
+
+  echo "[AKHQ] There are ${nbTopics} topics"
+
+   while [ "$i" -lt "${nbTopics}" ]
+    do
+      LIST_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic?show=ALL&page=${page}"`
+      NB_TOPIC_PER_PAGE=`echo "${LIST_TOPIC}" | jq ".results | length"`
+      j=0
+      while [ "$j" -lt "${NB_TOPIC_PER_PAGE}" ]
+      do
+        TOPIC=`echo "${LIST_TOPIC}" | jq ".results[${j}]"`
+        akhq_process_topic
+        i=$(( i+1 ))
+        j=$(( j+1 ))
+      done
+      page=$(( page+1 ))
+  done
+}
+
 
 akhq_list_acl
 akhq_create_link
+
+akhq_enriche_node
