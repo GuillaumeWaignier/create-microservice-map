@@ -91,9 +91,10 @@ function apim_enrichedApi {
     APIM_API_I_CREATED=`echo "${APIM_API_I}" | jq -r .created_at`
     APIM_API_I_UPDATED=`echo "${APIM_API_I}" | jq -r .updated_at`
     APIM_API_I_VISIBILITY=`echo "${APIM_API_I}" | jq -r .visibility`
+    APIM_API_I_LIFECYCLE_STATE=`echo "${APIM_API_I}" | jq -r .lifecycle_state`
+    APIM_API_I_STATE=`echo "${APIM_API_I}" | jq -r .state`
 
-
-    echo "api;${APIM_API_I_NAME};{version:\\\"${APIM_API_I_VERSION}\\\",owner:\\\"${APIM_API_I_OWNER}\\\",createdAt:datetime({epochMillis:${APIM_API_I_CREATED}}),updatedAt:datetime({epochMillis:${APIM_API_I_UPDATED}}),visibility:\\\"${APIM_API_I_VISIBILITY}\\\"}" >> ${ENRICHED_NODES_FILE}
+    echo "api;${APIM_API_I_NAME};{version:\\\"${APIM_API_I_VERSION}\\\",owner:\\\"${APIM_API_I_OWNER}\\\",createdAt:datetime({epochMillis:${APIM_API_I_CREATED}}),updatedAt:datetime({epochMillis:${APIM_API_I_UPDATED}}),visibility:\\\"${APIM_API_I_VISIBILITY}\\\",lifecycleState:\\\"${APIM_API_I_LIFECYCLE_STATE}\\\",state:\\\"${APIM_API_I_STATE}\\\"}" >> ${ENRICHED_NODES_FILE}
     i=$(( i+1 ))
   done
 }
