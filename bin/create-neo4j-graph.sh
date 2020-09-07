@@ -24,7 +24,7 @@ function create_node {
     NAME=`echo "${NODE}" | jq -r .name`
     TYPE=`echo "${NODE}" | jq -r .type`
 
-    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name:\\\"${NAME}\\\",Id:$i})\"}]}"
+    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name:\\\"${NAME}\\\",Id:$i})\"}]}"
 
     i=$(( i+1 ))
   done
@@ -48,7 +48,7 @@ function create_link {
     TARGET_TYPE=`echo "${LINK}" | jq -r .targetType`
     LINK_NAME=`echo "${LINK}" | jq -r .linkName`
 
-    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}]->(b) RETURN type(r)\"}]}"
+    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}]->(b) RETURN type(r)\"}]}"
 
     i=$(( i+1 ))
   done
@@ -67,7 +67,7 @@ function enriche_node() {
       NAME=`echo "${line}" | cut -d';' -f2`
       PROPERTIES=`echo "${line}" | cut -d';' -f3`
 
-      curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/neo4j/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${TYPE} { Name: \\\"${NAME}\\\" }) SET a+= ${PROPERTIES}\"}]}"
+      curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${TYPE} { Name: \\\"${NAME}\\\" }) SET a+= ${PROPERTIES}\"}]}"
       i=$(( i+1 ))
   done
 

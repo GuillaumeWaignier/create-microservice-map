@@ -61,6 +61,15 @@ or open this url [http://localhost:7474](http://localhost:7474) for the [Neo4J](
 
 All configurations are done with environment variables.
 
+* Storage [Neo4J](https://neo4j.com)
+
+| Configuration      | Default value | Comment  |
+| ------------------ |:-------------:| -----:|
+|  NEO4J_URL         |               | Neo4J URL|
+|  NEO4J_DB          |  neo4j        | Database   |
+
+
+:-neo4j
 
 * API Management [Gravitee V1.x](https://www.gravitee.io/)
 
