@@ -90,6 +90,18 @@ All configurations are done with environment variables.
 |  AKHQ_PASS    |               | Password |
 |  AKHQ_CONNECT_CLUSTER    |               | Optional: used to collect kafka connect plugins |
 
+
+* [MongoDB Atlas](https://cloud.mongodb.com)
+
+| Configuration | Default value | Comment  |
+| ------------- |:-------------:| -----:|
+|  MONGODB_ATLAS_URL     |               | URL for mongoDB atlas (https://cloud.mongodb.com) |
+|  MONGODB_ATLAS_PROJECT_ID |               | Project Id |
+|  MONGODB_ATLAS_USER    |               | Public API key   |
+|  MONGODB_ATLAS_PASS    |               | Private API key |
+
+See [https://docs.atlas.mongodb.com/configure-api-access/](https://docs.atlas.mongodb.com/configure-api-access/) to create API key.
+
 ## How it's work
 
 The tool calls the REST API of the various tools (Gravitee, AkHQ, Elastic, ...) in order to retrieve the ACLs configuration.
