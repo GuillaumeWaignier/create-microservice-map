@@ -102,6 +102,7 @@ All configurations are done with environment variables.
 |  AKHQ_PASS    |               | Password |
 |  AKHQ_CONNECT_CLUSTER    |               | Optional: used to collect kafka connect plugins |
 
+The needed permissions is *acls/read* and optionally *connect/read* to collect kafka connect info.
 
 * [MongoDB Atlas](https://cloud.mongodb.com)
 
@@ -113,6 +114,7 @@ All configurations are done with environment variables.
 |  MONGODB_ATLAS_PASS    |               | Private API key |
 
 See [https://docs.atlas.mongodb.com/configure-api-access/](https://docs.atlas.mongodb.com/configure-api-access/) to create API key.
+The needed permissions is *Project Read Only*
 
 ## How it's work
 
