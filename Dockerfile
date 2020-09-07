@@ -6,7 +6,8 @@ COPY front/ /var/www/html/
 
 RUN  apt-get update \
   && apt-get install jq curl nginx -y \
-  && service nginx start
+  && chmod +x /script/*.sh \
+  && chmod +x /script/plugins/*.sh
 
 
 WORKDIR /script
