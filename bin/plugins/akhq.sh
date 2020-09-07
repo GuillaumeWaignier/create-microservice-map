@@ -68,10 +68,21 @@ function akhq_process_topic {
 
     CONFIG_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic/${TOPIC_NAME}/configs"`
 
+    PARTITIONS=`echo "${TOPIC}" | jq ".partitions|length"`
+    REPLICATION=`echo "${TOPIC}" | jq ".replicaCount"`
     CLEANUP=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"cleanup.policy\"))[].value"`
     MIN_INSYNC_REPLICAS=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"min.insync.replicas\"))[].value"`
+    RETENTION_MS=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"retention.ms\"))[].value"`
+    RETENTION_BYTE=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"retention.bytes\"))[].value"`
 
-    echo "topic;${TOPIC_NAME};{cleanup:\\\"${CLEANUP}\\\",minInsyncReplica:${MIN_INSYNC_REPLICAS}}" >> ${ENRICHED_NODES_FILE}
+    LINE="topic;${TOPIC_NAME};{partition:${PARTITIONS},replication:${REPLICATION},minInsyncReplica:${MIN_INSYNC_REPLICAS},cleanup:\\\"${CLEANUP}\\\""
+
+    if [ "${CLEANUP}" = "delete" ]
+    then
+      echo "${LINE},retentionMs:${RETENTION_MS},retentionBytes:${RETENTION_BYTE}}" >> ${ENRICHED_NODES_FILE}
+    else
+      echo "${LINE}}" >> ${ENRICHED_NODES_FILE}
+    fi
 
 }
 
