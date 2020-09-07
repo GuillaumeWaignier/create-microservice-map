@@ -5,6 +5,7 @@ services:
     hostname: create-microservice-map
     environment:
       - NEO4J_URL=http://neo4j:7474
+      - NEO4J_DB=test
       - GRAVITEE_USER=admin
       - GRAVITEE_PASS=admin
       - GRAVITEE1_URL=http://management_api:8083
@@ -27,6 +28,7 @@ services:
     restart: on-failure
     environment:
       - NEO4J_AUTH=none
+      - NEO4J_dbms_default__database=test
     ports:
       - 7474:7474
       - 7687:7687

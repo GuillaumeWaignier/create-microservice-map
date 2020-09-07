@@ -28,6 +28,11 @@ services:
       - AKHQ_CLUSTER=docker-kafka-server
       # AKHQ Configuration for kafka connect
       - AKHQ_CONNECT_CLUSTER=default
+      # MongoDB Atlas Configuration
+      - MONGODB_ATLAS_URL=https://cloud.mongodb.com
+      - MONGODB_ATLAS_USER=xxxxx
+      - MONGODB_ATLAS_PASS=xxxxxx-xxxx-xxxxx-xxxx-xxxxxxxxxxxx
+      - MONGODB_ATLAS_PROJECT_ID=xxxxxxxxxxxxxxxx
     restart: on-failure
     ports:
       - 8080:80
@@ -68,8 +73,6 @@ All configurations are done with environment variables.
 |  NEO4J_URL         |               | Neo4J URL|
 |  NEO4J_DB          |  neo4j        | Database   |
 
-
-:-neo4j
 
 * API Management [Gravitee V1.x](https://www.gravitee.io/)
 
