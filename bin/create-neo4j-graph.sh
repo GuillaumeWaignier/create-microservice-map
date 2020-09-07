@@ -5,6 +5,9 @@ then
   exit 0
 fi
 
+IFS="
+"
+
 echo "Create neo4J graph"
 
 function create_node {
