@@ -19,8 +19,8 @@ services:
       - NEO4J_URL=http://neo4j:7474
       # Gravitee Configuration
       - GRAVITEE1_URL=http://management_api:8083
-      - GRAVITEE1_USER=admin
-      - GRAVITEE1_PASS=admin
+      - GRAVITEE_USER=admin
+      - GRAVITEE_PASS=admin
       # AKHQ Configuration
       - AKHQ_URL=http://akhq:8080
       - AKHQ_USER=admin
@@ -67,16 +67,16 @@ All configurations are done with environment variables.
 | Configuration      | Default value | Comment  |
 | ------------------ |:-------------:| -----:|
 |  GRAVITEE1_URL     |               | URL for Gravitee Management Api |
-|  GRAVITEE1_USER    |               | User login   |
-|  GRAVITEE1_PASS    |               | Password |
+|  GRAVITEE_USER     |               | User login   |
+|  GRAVITEE_PASS     |               | Password |
 
 * API Management [Gravitee V3.x](https://www.gravitee.io/)
 
 | Configuration      | Default value | Comment  |
 | ------------------ |:-------------:| -----:|
 |  GRAVITEE3_URL     |               | URL for Gravitee Management Api |
-|  GRAVITEE3_USER    |               | User login   |
-|  GRAVITEE3_PASS    |               | Password |
+|  GRAVITEE_USER     |               | User login   |
+|  GRAVITEE_PASS     |               | Password |
 |  GRAVITEE3_ORGANIZATION    | DEFAULT       | Organization |
 |  GRAVITEE3_ENVIRONMENTS    | DEFAULT       | Environment |
 

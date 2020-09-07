@@ -5,8 +5,8 @@ services:
     hostname: create-microservice-map
     environment:
       - NEO4J_URL=http://neo4j:7474
-      - GRAVITEE1_USER=admin
-      - GRAVITEE1_PASS=admin
+      - GRAVITEE_USER=admin
+      - GRAVITEE_PASS=admin
       - GRAVITEE1_URL=http://management_api:8083
       - AKHQ_URL=http://akhq:8080
       - AKHQ_USER=admin
