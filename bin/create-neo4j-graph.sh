@@ -8,22 +8,18 @@ fi
 IFS="
 "
 
+
 echo "Create neo4J graph"
 
 function create_node {
 
-  GRAPH=`cat "${JSON_FILE}"`
-
-  NODES=`echo "${GRAPH}" | jq ".nodes"`
-  NODES_LENGTH=`echo "${NODES}" | jq length`
+  NODES_LENGTH=`cat ${NODES_FILE} | wc -l`
 
   i=0
-  while [ "$i" -lt "${NODES_LENGTH}" ]
+  for NODE in `cat "${NODES_FILE}"`
   do
-
     echo "[neo4J] Create node ${i}/${NODES_LENGTH}"
 
-    NODE=`echo "${NODES}" | jq ".[$i]"`
     NAME=`echo "${NODE}" | jq -r .name`
     TYPE=`echo "${NODE}" | jq -r .type`
 
@@ -35,23 +31,21 @@ function create_node {
 
 function create_link {
 
-  LINKS=`echo "${GRAPH}" | jq ".links"`
-  LINKS_LENGTH=`echo "${LINKS}" | jq length`
+  LINKS_LENGTH=`cat ${OUTPUT_FILE} | wc -l`
 
   i=0
-  while [ "$i" -lt "${LINKS_LENGTH}" ]
+  for LINK in `cat "${OUTPUT_FILE}"`
   do
-
     echo "[neo4J] Create link ${i}/${LINKS_LENGTH}"
 
-    LINK=`echo "${LINKS}" | jq ".[$i]"`
     SOURCE_NAME=`echo "${LINK}" | jq -r .sourceName`
     TARGET_NAME=`echo "${LINK}" | jq -r .targetName`
     SOURCE_TYPE=`echo "${LINK}" | jq -r .sourceType`
     TARGET_TYPE=`echo "${LINK}" | jq -r .targetType`
     LINK_NAME=`echo "${LINK}" | jq -r .linkName`
+    LINK_PROPERTIES=`echo "${LINK}" | jq -r .linkProperties`
 
-    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}]->(b) RETURN type(r)\"}]}"
+    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}{${LINK_PROPERTIES}}]->(b) RETURN type(r)\"}]}"
 
     i=$(( i+1 ))
   done

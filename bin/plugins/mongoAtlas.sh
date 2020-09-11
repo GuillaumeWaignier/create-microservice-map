@@ -28,11 +28,11 @@ function collect_mongo_user {
 
     if [ "${MONGO_USER_RIGHT}" == "read" ]
     then
-      echo "{\"sourceType\":\"mongo\",\"sourceName\":\"${MONGO_USER_DB}\",\"targetType\":\"api\",\"targetName\":\"${MONGO_USER_NAME}\",\"linkName\":\"read\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"mongo\",\"sourceName\":\"${MONGO_USER_DB}\",\"targetType\":\"api\",\"targetName\":\"${MONGO_USER_NAME}\",\"linkName\":\"read\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
     elif [ "${MONGO_USER_RIGHT=}" == "readWrite" ]
     then
-      echo "{\"sourceType\":\"mongo\",\"sourceName\":\"${MONGO_USER_DB}\",\"targetType\":\"api\",\"targetName\":\"${MONGO_USER_NAME}\",\"linkName\":\"read\"}" >> ${OUTPUT_FILE}
-      echo "{\"sourceType\":\"api\",\"sourceName\":\"${MONGO_USER_NAME}\",\"targetType\":\"mongo\",\"targetName\":\"${MONGO_USER_DB}\",\"linkName\":\"write\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"mongo\",\"sourceName\":\"${MONGO_USER_DB}\",\"targetType\":\"api\",\"targetName\":\"${MONGO_USER_NAME}\",\"linkName\":\"read\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"api\",\"sourceName\":\"${MONGO_USER_NAME}\",\"targetType\":\"mongo\",\"targetName\":\"${MONGO_USER_DB}\",\"linkName\":\"write\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
     else
       echo "[MongoDBAtlas] Role ${MONGO_USER_RIGHT} ignored"
     fi

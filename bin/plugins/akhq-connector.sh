@@ -37,7 +37,7 @@ function akhq_create_link {
     case ${AKHQ_CONNECTOR_I_CLASS} in
     "com.mongodb.kafka.connect.MongoSinkConnector")
       AKHQ_CONNECTOR_I_DATABASE=`echo "${AKHQ_CONNECTOR_I}" | jq -r .configs.database`
-      echo "{\"sourceType\":\"topic\",\"sourceName\":\"${AKHQ_CONNECTOR_I_TOPIC}\",\"targetType\":\"mongo\",\"targetName\":\"${AKHQ_CONNECTOR_I_DATABASE}\",\"linkName\":\"write\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"topic\",\"sourceName\":\"${AKHQ_CONNECTOR_I_TOPIC}\",\"targetType\":\"mongo\",\"targetName\":\"${AKHQ_CONNECTOR_I_DATABASE}\",\"linkName\":\"write\", \"linkProperties\":\"kconnect:\\\\\\\"${AKHQ_CONNECTOR_I_NAME}\\\\\\\"\"}" >> ${OUTPUT_FILE}
       ;;
 
     *)

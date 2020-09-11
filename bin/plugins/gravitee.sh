@@ -60,8 +60,10 @@ function apim_create_link {
 
       APIM_SUBCRIPTION_J_ID=`echo "${APIM_SUBCRIPTION_J}" | jq .api`
       APIM_SUBCRIPTION_J_NAME=`echo "${APIM_APPLICATION_I_SUBCRIPTION_FULL}" | jq -r ".metadata.${APIM_SUBCRIPTION_J_ID}.name"`
+      APIM_SUBCRIPTION_J_PLAN_ID=`echo "${APIM_SUBCRIPTION_J}" | jq .plan`
+      APIM_SUBCRIPTION_J_PLAN_NAME=`echo "${APIM_APPLICATION_I_SUBCRIPTION_FULL}" | jq -r ".metadata.${APIM_SUBCRIPTION_J_PLAN_ID}.name"`
 
-      echo "{\"sourceType\":\"api\",\"sourceName\":\"${APIM_APPLICATION_I_NAME}\",\"targetType\":\"api\",\"targetName\":\"${APIM_SUBCRIPTION_J_NAME}\",\"linkName\":\"call\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"api\",\"sourceName\":\"${APIM_APPLICATION_I_NAME}\",\"targetType\":\"api\",\"targetName\":\"${APIM_SUBCRIPTION_J_NAME}\",\"linkName\":\"call\", \"linkProperties\":\"plan:\\\\\\\"${APIM_SUBCRIPTION_J_PLAN_NAME}\\\\\\\"\"}" >> ${OUTPUT_FILE}
       j=$(( j+1 ))
     done
 
