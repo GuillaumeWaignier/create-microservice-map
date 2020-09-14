@@ -145,7 +145,7 @@ function create_neo4j_graph {
 
 function clear_neo4j {
   echo "[neo4J] Clear neo4j"
-  curl -s -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n) DETACH DELETE n\"}]}"
+  curl -s -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r\"}]}"
 }
 
 
