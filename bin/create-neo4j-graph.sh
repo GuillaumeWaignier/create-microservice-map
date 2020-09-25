@@ -11,6 +11,13 @@ IFS="
 
 echo "Create neo4J graph"
 
+
+function clear_neo4j {
+  echo "[neo4J] Clear neo4j"
+  curl -s -XPOST -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r\"}]}"
+}
+
+
 function create_node {
 
   NODES_LENGTH=`cat ${NODES_FILE} | wc -l`
@@ -23,7 +30,7 @@ function create_node {
     NAME=`echo "${NODE}" | jq -r .name`
     TYPE=`echo "${NODE}" | jq -r .type`
 
-    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name:\\\"${NAME}\\\",Id:$i})\"}]}"
+    curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name:\\\"${NAME}\\\",Id:$i})\"}]}"
 
     i=$(( i+1 ))
   done
@@ -45,7 +52,7 @@ function create_link {
     LINK_NAME=`echo "${LINK}" | jq -r .linkName`
     LINK_PROPERTIES=`echo "${LINK}" | jq -r .linkProperties`
 
-    curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}{${LINK_PROPERTIES}}]->(b) RETURN type(r)\"}]}"
+    curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}{${LINK_PROPERTIES}}]->(b) RETURN type(r)\"}]}"
 
     i=$(( i+1 ))
   done
@@ -64,13 +71,13 @@ function enriche_node() {
       NAME=`echo "${line}" | cut -d';' -f2`
       PROPERTIES=`echo "${line}" | cut -d';' -f3`
 
-      curl -XPOST -s -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${TYPE} { Name: \\\"${NAME}\\\" }) SET a+= ${PROPERTIES}\"}]}"
+      curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${TYPE} { Name: \\\"${NAME}\\\" }) SET a+= ${PROPERTIES}\"}]}"
       i=$(( i+1 ))
   done
 
 }
 
-
+clear_neo4j
 create_node
 create_link
 enriche_node

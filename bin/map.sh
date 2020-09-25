@@ -128,11 +128,14 @@ function create_json {
 
 function check_neo4j {
   echo "[neo4J] Check neo4j"
-  if [ `curl -s -o /dev/null -w "%{http_code}" ${NEO4J_URL}` = 200 ]
+
+  result=`curl -s -o /dev/null -w "%{http_code}" -u ${NEO4J_USER}:${NEO4J_PASSWORD} -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a) LIMIT 1 RETURN a\"}]}"`
+
+  if [ ${result}  = 200 ]
   then
     echo "[neo4J] Neo4j is up at ${NEO4J_URL}"
   else
-    echo "[neo4J] Failed to contact neo4j at ${NEO4J_URL}"
+    echo "[neo4J] Failed to contact neo4j at ${NEO4J_URL}. Error code is ${result}"
     exit 1
   fi
 }
@@ -143,16 +146,9 @@ function create_neo4j_graph {
   } 2>&1
 }
 
-function clear_neo4j {
-  echo "[neo4J] Clear neo4j"
-  curl -s -XPOST -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r\"}]}"
-}
-
-
 if [ ! -z "${NEO4J_URL}" ]
 then
   check_neo4j
-  clear_neo4j
 fi
 
 collect

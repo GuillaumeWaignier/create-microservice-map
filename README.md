@@ -72,6 +72,8 @@ All configurations are done with environment variables.
 | ------------------ |:-------------:| -----:|
 |  NEO4J_URL         |               | Neo4J URL|
 |  NEO4J_DB          |  neo4j        | Database   |
+|  NEO4J_USER        |               | User login (optional)   |
+|  NEO4J_PASSWORD    |               | User password (optional)   |
 
 
 * API Management [Gravitee V1.x](https://www.gravitee.io/)
