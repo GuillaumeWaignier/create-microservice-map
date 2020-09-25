@@ -116,6 +116,7 @@ subscribe cart catalog
 subscribe cart stock
 subscribe cart order
 subscribe cart client
+subscribe stock site
 
 sleep 50000
 

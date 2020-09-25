@@ -10,7 +10,7 @@ kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --part
 kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic sms-stream-v1
 kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic mail-stream-v1
 kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic delivery-snapshot-v1
-
+kafka-topics --bootstrap-server kafka:9092 --command-config /admin.config --partitions 1 --replication-factor 1 --create --topic stock-event-v1
 
 
 
@@ -28,12 +28,15 @@ kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[pa
 kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=api-secret]' --entity-type users --entity-name loader-catalog
 kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=api-secret]' --entity-type users --entity-name loader-stock
 kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=api-secret]' --entity-type users --entity-name loader-client
+kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=api-secret]' --entity-type users --entity-name loader-compute-stock
 
 
-kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-site --producer --topic 'site-snapshot-v1'
-kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-site --consumer --topic 'site-snapshot-v1' --group 'site'
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-catalog --producer --topic 'catalog-snapshot-v1'
-kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-catalog --consumer --topic 'catalog-snapshot-v1' --group 'catalog'
-kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-stock --producer --topic 'stock-snapshot-v1'
-kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-stock --consumer --topic 'order-snapshot-v1' --group 'stock'
-kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-stock --consumer --topic 'stock-snapshot-v1' --group 'stock'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-delivery --consumer --topic 'site-snapshot-v1' --group 'delivery'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-site --producer --topic 'site-snapshot-v1'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-compute-stock --producer --topic 'stock-event-v1'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-compute-stock --consumer --topic 'stock-snapshot-v1' --group 'compute-stock'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-compute-stock --consumer --topic 'order-snapshot-v1' --group 'compute-stock'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-cart --producer --topic 'cart-snapshot-v1'
+
+

@@ -1,0 +1,12 @@
+{
+  "name":"stock-to-mongo",
+  "config": {
+    "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+    "name":"stock-to-mongo",
+    "topics" : "stock-event-v1",
+    "database": "stock",
+    "connection.uri": "mongodb://mongodb:27017/stock",
+    "errors.tolerance":"none",
+    "errors.retry.timeout":-1
+  }
+}

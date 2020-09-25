@@ -154,6 +154,40 @@ services:
       - ./deployConnector.sh:/deployConnector.sh:ro
       - ./catalog-to-mongo.json:/body.json:ro
 
+  load-stock-connector:
+    image: "curlimages/curl:7.69.0"
+    hostname: curl
+    entrypoint:
+      - "/deployConnector.sh"
+      - "http://kafka-connect:8083"
+      - ""
+      - "body.json"
+    depends_on:
+      - kafka-connect
+    networks:
+      - net
+    restart: on-failure
+    volumes:
+      - ./deployConnector.sh:/deployConnector.sh:ro
+      - ./stock-to-mongo.json:/body.json:ro
+
+  load-order-connector:
+    image: "curlimages/curl:7.69.0"
+    hostname: curl
+    entrypoint:
+      - "/deployConnector.sh"
+      - "http://kafka-connect:8083"
+      - ""
+      - "body.json"
+    depends_on:
+      - kafka-connect
+    networks:
+      - net
+    restart: on-failure
+    volumes:
+      - ./deployConnector.sh:/deployConnector.sh:ro
+      - ./mongo-to-order.json:/body.json:ro
+
   akhq:
     image: tchiotludo/akhq:${AKHQ_VERSION}
     hostname: akhq

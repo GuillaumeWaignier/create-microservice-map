@@ -1,0 +1,12 @@
+{
+  "name":"mongo-to-order",
+  "config": {
+    "connector.class":"com.mongodb.kafka.connect.MongoSourceConnector",
+    "name":"mongo-to-order",
+    "topic.prefix" : "order-snapshot-v1",
+    "database": "order",
+    "connection.uri": "mongodb://mongodb:27017/order",
+    "errors.tolerance":"none",
+    "errors.retry.timeout":-1
+  }
+}
