@@ -77,9 +77,32 @@ function enriche_node() {
 
 }
 
+
+function rename_node_label() {
+
+  echo "[neo4J] Rename node label (need neo4j apoc plugin)"
+  RESULT=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:api) WHERE n.label IS NOT NULL WITH DISTINCT n.label AS label RETURN label\"}]}"`
+
+  LABELS_TO_RENAME=`echo "${RESULT}" | jq .results[0].data[0].row`
+  LABELS_TO_RENAME_COUNT=`echo "${LABELS_TO_RENAME}" | jq length`
+
+  i=0
+  while [ "$i" -lt "${LABELS_TO_RENAME_COUNT}" ]
+  do
+    LABEL_TO_RENAME=`echo "${LABELS_TO_RENAME}" | jq -r .[$i]`
+    echo "[neo4J] Rename label ${LABEL_TO_RENAME} : ${i}/${LABELS_TO_RENAME_COUNT}"
+
+    RESULT=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:api{label:'${LABEL_TO_RENAME}'}) WITH COLLECT(n) AS nodes CALL apoc.refactor.rename.label('api','${LABEL_TO_RENAME}',nodes) yield errorMessages AS eMessages RETURN eMessages\"}]}"`
+    i=$(( i+1 ))
+  done
+
+}
+
+
 clear_neo4j
 create_node
 create_link
 enriche_node
+rename_node_label
 
 echo "[neo4J] Graph create successfully. Open ${NEO4J_URL}"

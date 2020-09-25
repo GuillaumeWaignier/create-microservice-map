@@ -6,6 +6,8 @@ services:
     environment:
       - NEO4J_URL=http://neo4j:7474
       - NEO4J_DB=test
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=passwordSecure
       - GRAVITEE_USER=admin
       - GRAVITEE_PASS=admin
       - GRAVITEE1_URL=http://management_api:8083
@@ -14,6 +16,10 @@ services:
       - AKHQ_PASSWORD=admin
       - AKHQ_CLUSTER=docker-kafka-server
       - AKHQ_CONNECT_CLUSTER=default
+      - MONGODB_ATLAS_URL=https://cloud.mongodb.com
+      - MONGODB_ATLAS_USER=xxx
+      - MONGODB_ATLAS_PASS=xxx
+      - MONGODB_ATLAS_PROJECT_ID=xxx
     restart: on-failure
     depends_on:
       - neo4j
@@ -27,8 +33,13 @@ services:
     hostname: neo4j
     restart: on-failure
     environment:
-      - NEO4J_AUTH=none
+     # - NEO4J_AUTH=none
+      - NEO4J_AUTH=neo4j/passwordSecure
       - NEO4J_dbms_default__database=test
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=["apoc"]
     ports:
       - 7474:7474
       - 7687:7687
