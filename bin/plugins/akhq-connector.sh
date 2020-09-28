@@ -34,16 +34,21 @@ function akhq_create_link {
     AKHQ_CONNECTOR_I_NAME=`echo "${AKHQ_CONNECTOR_I}" | jq -r .name`
     AKHQ_CONNECTOR_I_TOPIC=`echo "${AKHQ_CONNECTOR_I}" | jq -r .configs.topics`
 
+    AKHQ_CONNECTOR_I_TASKMAX=`echo "${AKHQ_CONNECTOR_I}" | jq -r '.configs["tasks.max"]'`
+    AKHQ_CONNECTOR_I_ERROR_TOLERANCE=`echo "${AKHQ_CONNECTOR_I}" | jq -r '.configs["errors.tolerance"]'`
+
+
     case ${AKHQ_CONNECTOR_I_CLASS} in
     "com.mongodb.kafka.connect.MongoSinkConnector")
       AKHQ_CONNECTOR_I_DATABASE=`echo "${AKHQ_CONNECTOR_I}" | jq -r .configs.database`
       echo "{\"sourceType\":\"topic\",\"sourceName\":\"${AKHQ_CONNECTOR_I_TOPIC}\",\"targetType\":\"app\",\"targetName\":\"${AKHQ_CONNECTOR_I_NAME}\",\"linkName\":\"consume\", \"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
       echo "{\"sourceType\":\"app\",\"sourceName\":\"${AKHQ_CONNECTOR_I_NAME}\",\"targetType\":\"mongo\",\"targetName\":\"${AKHQ_CONNECTOR_I_DATABASE}\",\"linkName\":\"write\", \"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
-      echo "app;${AKHQ_CONNECTOR_I_NAME};{label:\\\"kconnect\\\"}" >> ${ENRICHED_NODES_FILE}
+      echo "app;${AKHQ_CONNECTOR_I_NAME};{errorsTolerance:\\\"${AKHQ_CONNECTOR_I_ERROR_TOLERANCE}\\\",taskMax:${AKHQ_CONNECTOR_I_TASKMAX},class:\\\"${AKHQ_CONNECTOR_I_CLASS}\\\",label:\\\"kconnect\\\"}" >> ${ENRICHED_NODES_FILE}
       ;;
 
     *)
       echo "[AKHQ] Ignoring connector ${AKHQ_CONNECTOR_I_NAME} with class ${AKHQ_CONNECTOR_I_CLASS}"
+      echo "app;${AKHQ_CONNECTOR_I_NAME};{errorsTolerance:\\\"${AKHQ_CONNECTOR_I_ERROR_TOLERANCE}\\\",taskMax:${AKHQ_CONNECTOR_I_TASKMAX},class:\\\"${AKHQ_CONNECTOR_I_CLASS}\\\",label:\\\"kconnect\\\"}" >> ${ENRICHED_NODES_FILE}
       ;;
     esac
 
