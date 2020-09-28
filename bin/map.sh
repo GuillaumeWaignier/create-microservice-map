@@ -11,11 +11,16 @@ export NODES_FILE="${base_dir}/nodes.json"
 export JSON_FILE="/var/www/html/graph.json"
 export ENRICHED_NODES_FILE="/var/www/html/enrichedNodes.csv"
 
+function clean {
+  echo -n "" > ${OUTPUT_FILE}
+  echo -n "" > ${NODES_FILE}
+  echo -n "" > ${JSON_FILE}
+  echo -n "" > ${ENRICHED_NODES_FILE}
+}
 
 function collect {
   start=`date -u +%FT%T.%3NZ`
   echo "Start collect at ${start}"
-  touch ${OUTPUT_FILE}
 
   for plugin in `ls "${base_dir}/plugins"`
   do
@@ -153,6 +158,8 @@ then
   check_neo4j
 fi
 
+
+clean
 collect
 create_json
 create_neo4j_graph
