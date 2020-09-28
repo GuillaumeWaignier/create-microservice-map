@@ -45,6 +45,10 @@ services:
     restart: on-failure
     environment:
       - NEO4J_AUTH=none
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=["apoc"]
     ports:
       - 7474:7474
       - 7687:7687
