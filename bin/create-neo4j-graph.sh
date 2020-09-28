@@ -11,10 +11,20 @@ IFS="
 
 echo "Create neo4J graph"
 
+function displayNeo4jResult {
+
+  SUCCESS=`echo "$1" | grep "\"errors\":\[\]"`
+  if [ -z "${SUCCESS}" ]
+  then
+    echo "[neo4j] Error is : $1 / json is $2"
+  fi
+}
 
 function clear_neo4j {
   echo "[neo4J] Clear neo4j"
-  curl -s -XPOST -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r\"}]}"
+  JSON="{\"statements\":[{\"statement\":\"MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r\"}]}"
+  RES=`curl -s -XPOST -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "${JSON}"`
+  displayNeo4jResult "${RES}" "${JSON}"
 }
 
 
@@ -30,7 +40,9 @@ function create_node {
     NAME=`echo "${NODE}" | jq -r .name`
     TYPE=`echo "${NODE}" | jq -r .type`
 
-    curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name:\\\"${NAME}\\\",Id:$i})\"}]}"
+    JSON="{\"statements\":[{\"statement\":\"CREATE (:${TYPE} { Name:\\\"${NAME}\\\",Id:$i})\"}]}"
+    RES=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "${JSON}"`
+    displayNeo4jResult "${RES}" "${JSON}"
 
     i=$(( i+1 ))
   done
@@ -52,7 +64,9 @@ function create_link {
     LINK_NAME=`echo "${LINK}" | jq -r .linkName`
     LINK_PROPERTIES=`echo "${LINK}" | jq -r .linkProperties`
 
-    curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}{${LINK_PROPERTIES}}]->(b) RETURN type(r)\"}]}"
+    JSON="{\"statements\":[{\"statement\":\"MATCH (a:${SOURCE_TYPE}),(b:${TARGET_TYPE}) WHERE a.Name = \\\"${SOURCE_NAME}\\\" AND b.Name = \\\"${TARGET_NAME}\\\" CREATE (a)-[r:${LINK_NAME}{${LINK_PROPERTIES}}]->(b) RETURN type(r)\"}]}"
+    RES=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "${JSON}"`
+    displayNeo4jResult "${RES}" "${JSON}"
 
     i=$(( i+1 ))
   done
@@ -71,7 +85,10 @@ function enriche_node() {
       NAME=`echo "${line}" | cut -d';' -f2`
       PROPERTIES=`echo "${line}" | cut -d';' -f3`
 
-      curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (a:${TYPE} { Name: \\\"${NAME}\\\" }) SET a+= ${PROPERTIES}\"}]}"
+      JSON="{\"statements\":[{\"statement\":\"MATCH (a:${TYPE} { Name: \\\"${NAME}\\\" }) SET a+= ${PROPERTIES}\"}]}"
+      RES=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "${JSON}"`
+      displayNeo4jResult "${RES}" "${JSON}"
+
       i=$(( i+1 ))
   done
 
@@ -81,18 +98,20 @@ function enriche_node() {
 function rename_node_label() {
 
   echo "[neo4J] Rename node label (need neo4j apoc plugin)"
-  RESULT=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:api) WHERE n.label IS NOT NULL WITH DISTINCT n.label AS label RETURN label\"}]}"`
+  RESULT=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:app) WHERE n.label IS NOT NULL WITH DISTINCT n.label AS label RETURN label\"}]}"`
 
-  LABELS_TO_RENAME=`echo "${RESULT}" | jq .results[0].data[0].row`
+  LABELS_TO_RENAME=`echo "${RESULT}" | jq ".results[0].data"`
   LABELS_TO_RENAME_COUNT=`echo "${LABELS_TO_RENAME}" | jq length`
 
   i=0
   while [ "$i" -lt "${LABELS_TO_RENAME_COUNT}" ]
   do
-    LABEL_TO_RENAME=`echo "${LABELS_TO_RENAME}" | jq -r .[$i]`
+    LABEL_TO_RENAME=`echo "${LABELS_TO_RENAME}" | jq -r ".[$i].row[]"`
     echo "[neo4J] Rename label ${LABEL_TO_RENAME} : ${i}/${LABELS_TO_RENAME_COUNT}"
 
-    RESULT=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:api{label:'${LABEL_TO_RENAME}'}) WITH COLLECT(n) AS nodes CALL apoc.refactor.rename.label('api','${LABEL_TO_RENAME}',nodes) yield errorMessages AS eMessages RETURN eMessages\"}]}"`
+    RES=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:app{label:'${LABEL_TO_RENAME}'}) WITH COLLECT(n) AS nodes CALL apoc.refactor.rename.label('app','${LABEL_TO_RENAME}',nodes) yield errorMessages AS eMessages RETURN eMessages\"}]}"`
+    displayNeo4jResult "${RES}" "${JSON}"
+
     i=$(( i+1 ))
   done
 

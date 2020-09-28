@@ -88,6 +88,8 @@ function create_link {
 
   LINKS_NUMBER=`cat ${OUTPUT_FILE} | wc -l`
 
+  echo "There are ${LINKS_NUMBER} links"
+
   i=1
   for line in `cat "${OUTPUT_FILE}"`
   do

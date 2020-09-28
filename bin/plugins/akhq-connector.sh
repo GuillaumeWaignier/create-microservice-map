@@ -10,7 +10,7 @@ echo "[AKHQ] Run akhq connector plugin"
 
 
 function akhq_list_connector {
-  echo "[AKHQ] Get all connector"
+  echo "[AKHQ] Get all connectors"
   AKHQ_CONNECTOR=`curl -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/connect/${AKHQ_CONNECT_CLUSTER}`
 }
 
@@ -37,13 +37,13 @@ function akhq_create_link {
     case ${AKHQ_CONNECTOR_I_CLASS} in
     "com.mongodb.kafka.connect.MongoSinkConnector")
       AKHQ_CONNECTOR_I_DATABASE=`echo "${AKHQ_CONNECTOR_I}" | jq -r .configs.database`
-      echo "{\"sourceType\":\"topic\",\"sourceName\":\"${AKHQ_CONNECTOR_I_TOPIC}\",\"targetType\":\"api\",\"targetName\":\"${AKHQ_CONNECTOR_I_NAME}\",\"linkName\":\"consume\", \"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
-      echo "{\"sourceType\":\"api\",\"sourceName\":\"${AKHQ_CONNECTOR_I_NAME}\",\"targetType\":\"mongo\",\"targetName\":\"${AKHQ_CONNECTOR_I_DATABASE}\",\"linkName\":\"write\", \"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
-      echo "api;${AKHQ_CONNECTOR_I_NAME};{label:\\\"kconnect\\\"}" >> ${ENRICHED_NODES_FILE}
+      echo "{\"sourceType\":\"topic\",\"sourceName\":\"${AKHQ_CONNECTOR_I_TOPIC}\",\"targetType\":\"app\",\"targetName\":\"${AKHQ_CONNECTOR_I_NAME}\",\"linkName\":\"consume\", \"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"app\",\"sourceName\":\"${AKHQ_CONNECTOR_I_NAME}\",\"targetType\":\"mongo\",\"targetName\":\"${AKHQ_CONNECTOR_I_DATABASE}\",\"linkName\":\"write\", \"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
+      echo "app;${AKHQ_CONNECTOR_I_NAME};{label:\\\"kconnect\\\"}" >> ${ENRICHED_NODES_FILE}
       ;;
 
     *)
-      echo "Ignoring connector ${AKHQ_CONNECTOR_I_NAME} with class ${AKHQ_CONNECTOR_I_CLASS}"
+      echo "[AKHQ] Ignoring connector ${AKHQ_CONNECTOR_I_NAME} with class ${AKHQ_CONNECTOR_I_CLASS}"
       ;;
     esac
 

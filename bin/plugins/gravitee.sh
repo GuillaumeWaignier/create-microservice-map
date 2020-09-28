@@ -63,7 +63,7 @@ function apim_create_link {
       APIM_SUBCRIPTION_J_PLAN_ID=`echo "${APIM_SUBCRIPTION_J}" | jq .plan`
       APIM_SUBCRIPTION_J_PLAN_NAME=`echo "${APIM_APPLICATION_I_SUBCRIPTION_FULL}" | jq -r ".metadata.${APIM_SUBCRIPTION_J_PLAN_ID}.name"`
 
-      echo "{\"sourceType\":\"api\",\"sourceName\":\"${APIM_APPLICATION_I_NAME}\",\"targetType\":\"api\",\"targetName\":\"${APIM_SUBCRIPTION_J_NAME}\",\"linkName\":\"call\", \"linkProperties\":\"plan:\\\\\\\"${APIM_SUBCRIPTION_J_PLAN_NAME}\\\\\\\"\"}" >> ${OUTPUT_FILE}
+      echo "{\"sourceType\":\"app\",\"sourceName\":\"${APIM_APPLICATION_I_NAME}\",\"targetType\":\"app\",\"targetName\":\"${APIM_SUBCRIPTION_J_NAME}\",\"linkName\":\"call\", \"linkProperties\":\"plan:\\\\\\\"${APIM_SUBCRIPTION_J_PLAN_NAME}\\\\\\\"\"}" >> ${OUTPUT_FILE}
       j=$(( j+1 ))
     done
 
@@ -96,7 +96,7 @@ function apim_enrichedApi {
     APIM_API_I_LIFECYCLE_STATE=`echo "${APIM_API_I}" | jq -r .lifecycle_state`
     APIM_API_I_STATE=`echo "${APIM_API_I}" | jq -r .state`
 
-    echo "api;${APIM_API_I_NAME};{version:\\\"${APIM_API_I_VERSION}\\\",owner:\\\"${APIM_API_I_OWNER}\\\",createdAt:datetime({epochMillis:${APIM_API_I_CREATED}}),updatedAt:datetime({epochMillis:${APIM_API_I_UPDATED}}),visibility:\\\"${APIM_API_I_VISIBILITY}\\\",lifecycleState:\\\"${APIM_API_I_LIFECYCLE_STATE}\\\",state:\\\"${APIM_API_I_STATE}\\\"}" >> ${ENRICHED_NODES_FILE}
+    echo "app;${APIM_API_I_NAME};{version:\\\"${APIM_API_I_VERSION}\\\",owner:\\\"${APIM_API_I_OWNER}\\\",createdAt:datetime({epochMillis:${APIM_API_I_CREATED}}),updatedAt:datetime({epochMillis:${APIM_API_I_UPDATED}}),visibility:\\\"${APIM_API_I_VISIBILITY}\\\",lifecycleState:\\\"${APIM_API_I_LIFECYCLE_STATE}\\\",state:\\\"${APIM_API_I_STATE}\\\",label:\\\"api\\\"}" >> ${ENRICHED_NODES_FILE}
     i=$(( i+1 ))
   done
 }
