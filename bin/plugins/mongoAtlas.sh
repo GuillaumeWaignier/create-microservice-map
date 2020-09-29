@@ -95,7 +95,16 @@ function Mongodb_atlas_enrich_node {
     echo "[MongoDBAtlas] Collect databases ${k}/${MONGO_DATABASES_COUNT}"
 
     NAME=`echo "${MONGO_DATABASES}" | jq -r ".results[${k}].databaseName"`
-    MONGO_DATABASES_INFO=`curl -s -u "${MONGODB_ATLAS_USER}:${MONGODB_ATLAS_PASS}" --digest -XGET ${MONGODB_ATLAS_URL}/api/atlas/v1.0/groups/${MONGODB_ATLAS_PROJECT_ID}/processes/${MONGO_PROCESS}/databases/${NAME}/measurements?granularity=PT5M\&period=PT10M`
+    MONGO_DATABASES_INFO=`curl -s -u "${MONGODB_ATLAS_USER}:${MONGODB_ATLAS_PASS}" --digest -XGET ${MONGODB_ATLAS_URL}/api/atlas/v1.0/groups/${MONGODB_ATLAS_PROJECT_ID}/processes/${MONGO_PROCESS}/databases/${NAME}/measurements?granularity=PT5M\&period=PT16M`
+
+    RES=`echo "${MONGO_DATABASES_INFO}" | jq ".measurements[0].dataPoints | length"`
+
+    if [ "${RES}" -eq "0" ]
+    then
+       echo "[MongoDBAtlas] WARNING There is 0 statistic for ${NAME}  : ${MONGO_DATABASES_INFO}"
+    else
+       echo "[MongoDBAtlas] There is ${RES} statistic for ${NAME}"
+    fi
 
     MONGO_COLLECTION_COUNT=`echo "${MONGO_DATABASES_INFO}" | jq ".measurements | map(select(.name == \"DATABASE_COLLECTION_COUNT\" ))[].dataPoints[0].value"`
     MONGO_INDEX_COUNT=`echo "${MONGO_DATABASES_INFO}" | jq ".measurements | map(select(.name == \"DATABASE_INDEX_COUNT\" ))[].dataPoints[0].value"`
