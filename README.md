@@ -127,6 +127,7 @@ The needed permissions is *Project Read Only*
 The tool calls the REST API of the various tools (Gravitee, AkHQ, Elastic, ...) in order to retrieve the ACLs configuration.
 Given this ACLs (read, write), a data graph is created inside __/var/www/html/graph.json__
 A very simple HTML page running in *nginx* display the graph. 
+A [Neo4J](https://neo4j.com) graph database is also populated.
 
 ## Test
 
@@ -176,10 +177,34 @@ Then open the simple JS graph at [http://localhost:8081](http://localhost:8081).
 
 Or open the neo4j graph at [http://localhost:7474](http://localhost:7474).
 
+# Neo4j
+
+When the [Neo4J](https://neo4j.com) URL is set, the tool populate the base.
+
 ![Graphe](./neo4j.png)
 
-You can then search for sub graph for example:
+You can then do some query:
+
+* Node connected to *api-cart* with depth of 2
 
 ```bash
 MATCH (a:api { Name: 'api-cart' })-[*0..2]->(b) RETURN a,b
 ```
+
+![cart](./api-cart.png)
+
+* Topic with *delete* policy
+
+```bash
+MATCH (n:topic) WHERE n.cleanup="delete" RETURN n
+```
+
+![topics](./topics.png)
+
+* Mongo db read or write by loaders
+
+```bash
+MATCH (n)-[*0..1]-(b) WHERE n.Name STARTS WITH "loader-" RETURN n,b
+```
+
+![loader](./loader.png)
