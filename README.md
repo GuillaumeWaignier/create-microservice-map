@@ -24,7 +24,7 @@ services:
       # AKHQ Configuration
       - AKHQ_URL=http://akhq:8080
       - AKHQ_USER=admin
-      - AKHQ_PASSWORD=admin
+      - AKHQ_PASS=admin
       - AKHQ_CLUSTER=docker-kafka-server
       # AKHQ Configuration for kafka connect
       - AKHQ_CONNECT_CLUSTER=default
