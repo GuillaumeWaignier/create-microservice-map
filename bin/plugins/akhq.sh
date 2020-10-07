@@ -11,7 +11,7 @@ echo "[AKHQ] Run akhq plugin"
 
 function akhq_list_acl {
   echo "[AKHQ] Get all ACLs"
-  AKHQ_ACL=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/acls`
+  AKHQ_ACL=`curl -k -s -u "${AKHQ_USER}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/acls`
 }
 
 function akhq_create_link {
@@ -66,7 +66,7 @@ function akhq_process_topic {
 
     TOPIC_NAME=`echo "${TOPIC}" | jq -r .name`
 
-    CONFIG_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic/${TOPIC_NAME}/configs"`
+    CONFIG_TOPIC=`curl -k -s -u "${AKHQ_USER}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic/${TOPIC_NAME}/configs"`
 
     PARTITIONS=`echo "${TOPIC}" | jq ".partitions|length"`
     REPLICATION=`echo "${TOPIC}" | jq ".replicaCount"`
@@ -91,14 +91,14 @@ function akhq_enriche_node {
 
   page=1
   i=0
-  LIST_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic?show=ALL&page=${page}"`
+  LIST_TOPIC=`curl -k -s -u "${AKHQ_USER}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic?show=ALL&page=${page}"`
   nbTopics=`echo "${LIST_TOPIC}" | jq .total`
 
   echo "[AKHQ] There are ${nbTopics} topics"
 
    while [ "$i" -lt "${nbTopics}" ]
     do
-      LIST_TOPIC=`curl -k -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic?show=ALL&page=${page}"`
+      LIST_TOPIC=`curl -k -s -u "${AKHQ_USER}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic?show=ALL&page=${page}"`
       NB_TOPIC_PER_PAGE=`echo "${LIST_TOPIC}" | jq ".results | length"`
       j=0
       while [ "$j" -lt "${NB_TOPIC_PER_PAGE}" ]
