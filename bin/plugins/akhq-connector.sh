@@ -11,7 +11,7 @@ echo "[AKHQ] Run akhq connector plugin"
 
 function akhq_list_connector {
   echo "[AKHQ] Get all connectors"
-  AKHQ_CONNECTOR=`curl -s -u "${AKHQ_LOGIN}:${AKHQ:PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/connect/${AKHQ_CONNECT_CLUSTER}`
+  AKHQ_CONNECTOR=`curl -s -u "${AKHQ_USER}:${AKHQ_PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET ${AKHQ_URL}/api/${AKHQ_CLUSTER}/connect/${AKHQ_CONNECT_CLUSTER}`
 }
 
 function akhq_create_link {
