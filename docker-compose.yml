@@ -13,7 +13,7 @@ services:
       - GRAVITEE1_URL=http://management_api:8083
       - AKHQ_URL=http://akhq:8080
       - AKHQ_USER=admin
-      - AKHQ_PASSWORD=admin
+      - AKHQ_PASS=admin
       - AKHQ_CLUSTER=docker-kafka-server
       - AKHQ_CONNECT_CLUSTER=default
       - MONGODB_ATLAS_URL=https://cloud.mongodb.com
