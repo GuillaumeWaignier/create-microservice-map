@@ -212,7 +212,7 @@ MATCH (n)-[*0..1]-(b) WHERE n.Name STARTS WITH "loader-" RETURN n,b
 * Number of sub dependancy links (topic, mongo, other apis) for all api
 
 ```bash
-MATCH (a:api)-[r]->(b) RETURN a.Name, COUNT(r) ORDER BY COUNT(r) DESC
+MATCH (a:api)-[r:consume|produce*1..1]-(b) RETURN a.Name, COUNT(r) ORDER BY COUNT(r) DESC
 ```
 
 
