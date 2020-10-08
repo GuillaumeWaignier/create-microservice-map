@@ -208,3 +208,12 @@ MATCH (n)-[*0..1]-(b) WHERE n.Name STARTS WITH "loader-" RETURN n,b
 ```
 
 ![loader](./loader.png)
+
+* Number of sub dependancy links (topic, mongo, other apis) for all api
+
+```bash
+MATCH (a:api)-[r]->(b) RETURN a.Name, COUNT(r) ORDER BY COUNT(r) DESC
+```
+
+
+
