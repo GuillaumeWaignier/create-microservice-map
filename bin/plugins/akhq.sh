@@ -116,6 +116,7 @@ function akhq_process_topic {
 
     CONFIG_TOPIC=`curl -k -s -u "${AKHQ_USER}:${AKHQ_PASS}" -H "Content-Type: application/json;charset=UTF-8" -XGET "${AKHQ_URL}/api/${AKHQ_CLUSTER}/topic/${TOPIC_NAME}/configs"`
 
+    SIZE=`echo "${TOPIC}" | jq ".size"`
     PARTITIONS=`echo "${TOPIC}" | jq ".partitions|length"`
     REPLICATION=`echo "${TOPIC}" | jq ".replicaCount"`
     CLEANUP=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"cleanup.policy\"))[].value"`
@@ -123,7 +124,7 @@ function akhq_process_topic {
     RETENTION_MS=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"retention.ms\"))[].value"`
     RETENTION_BYTE=`echo "${CONFIG_TOPIC}" | jq -r "map(select(.name == \"retention.bytes\"))[].value"`
 
-    LINE="topic;${TOPIC_NAME};{partition:${PARTITIONS},replication:${REPLICATION},minInsyncReplica:${MIN_INSYNC_REPLICAS},cleanup:\\\"${CLEANUP}\\\""
+    LINE="topic;${TOPIC_NAME};{partition:${PARTITIONS},replication:${REPLICATION},minInsyncReplica:${MIN_INSYNC_REPLICAS},cleanup:\\\"${CLEANUP}\\\",docSize:${SIZE}"
 
     if [ "${CLEANUP}" = "delete" ]
     then
