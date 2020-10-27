@@ -30,6 +30,9 @@ kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[pa
 kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=api-secret]' --entity-type users --entity-name loader-client
 kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=api-secret]' --entity-type users --entity-name loader-compute-stock
 
+kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=user-stock]' --entity-type users --entity-name user-stock
+kafka-configs --zookeeper zookeeper:2181 --alter --add-config SCRAM-SHA-512='[password=user-foo]' --entity-type users --entity-name user-foo
+
 
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-catalog --producer --topic 'catalog-snapshot-v1'
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-delivery --consumer --topic 'site-snapshot-v1' --group 'delivery'
@@ -39,4 +42,5 @@ kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:loader-compute-stock --consumer --topic 'order-snapshot-v1' --group 'compute-stock'
 kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:api-cart --producer --topic 'cart-snapshot-v1'
 
-
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:user-stock --producer --consumer --group 'user-stock' --topic 'stock' --resource-pattern-type 'PREFIXED'
+kafka-acls --bootstrap-server kafka:9092 --command-config /admin.config --add --allow-principal User:user-foo --consumer --group 'user-foo' --topic '*'
