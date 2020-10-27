@@ -21,13 +21,15 @@ function akhq_create_link_inside_file {
   #$1 = AKHQ_RIGHT_OPERATION
   #$2 = AKHQ_RIGHT_TOPIC
   #$3 = AKHQ_ACL_I_NAME
-  if [ "${1=}" == "READ" ]
-      then
-        echo "{\"sourceType\":\"topic\",\"sourceName\":\"${2}\",\"targetType\":\"app\",\"targetName\":\"${3}\",\"linkName\":\"consume\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
-      elif [ "${1=}" == "WRITE" ]
-      then
-        echo "{\"sourceType\":\"app\",\"sourceName\":\"${3}\",\"targetType\":\"topic\",\"targetName\":\"${2}\",\"linkName\":\"produce\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
-      fi
+  if [ "${1}" == "READ" ] || [ "${1}" == "ALL" ]
+  then
+     echo "{\"sourceType\":\"topic\",\"sourceName\":\"${2}\",\"targetType\":\"app\",\"targetName\":\"${3}\",\"linkName\":\"consume\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
+  fi
+
+  if [ "${1}" == "WRITE" ] || [ "${1}" == "ALL" ]
+  then
+    echo "{\"sourceType\":\"app\",\"sourceName\":\"${3}\",\"targetType\":\"topic\",\"targetName\":\"${2}\",\"linkName\":\"produce\",\"linkProperties\":\"\"}" >> ${OUTPUT_FILE}
+  fi
 }
 
 
@@ -88,15 +90,16 @@ function akhq_create_link {
       AKHQ_RIGHT_PATTERN_TYPE=`echo "${AKHQ_RIGHT_J}" | jq -r .resource.patternType`
       AKHQ_RIGHT_OPERATION=`echo "${AKHQ_RIGHT_J}" | jq -r .operation.operation`
       AKHQ_RIGHT_TOPIC=`echo "${AKHQ_RIGHT_J}" | jq -r .resource.name`
+      AKHQ_RIGHT_PERMISSION_TYPE=`echo "${AKHQ_RIGHT_J}" | jq -r .operation.permissionType`
 
 
-      if [ "${AKHQ_RIGHT_RESOURCE_TYPE}" == "TOPIC" ] && [ "${AKHQ_RIGHT_PATTERN_TYPE}" == "LITERAL" ] && [ "${AKHQ_RIGHT_TOPIC}" == "*" ]
+      if [ "${AKHQ_RIGHT_PERMISSION_TYPE}" == "ALLOW" ] && [ "${AKHQ_RIGHT_RESOURCE_TYPE}" == "TOPIC" ] && [ "${AKHQ_RIGHT_PATTERN_TYPE}" == "LITERAL" ] && [ "${AKHQ_RIGHT_TOPIC}" == "*" ]
       then
         akhq_create_star_link "${AKHQ_RIGHT_OPERATION=}" "${AKHQ_RIGHT_TOPIC}" "${AKHQ_ACL_I_NAME}"
-      elif [ "${AKHQ_RIGHT_RESOURCE_TYPE}" == "TOPIC" ] && [ "${AKHQ_RIGHT_PATTERN_TYPE}" == "LITERAL" ]
+      elif [ "${AKHQ_RIGHT_PERMISSION_TYPE}" == "ALLOW" ] && [ "${AKHQ_RIGHT_RESOURCE_TYPE}" == "TOPIC" ] && [ "${AKHQ_RIGHT_PATTERN_TYPE}" == "LITERAL" ]
       then
         akhq_create_link_inside_file "${AKHQ_RIGHT_OPERATION=}" "${AKHQ_RIGHT_TOPIC}" "${AKHQ_ACL_I_NAME}"
-      elif [ "${AKHQ_RIGHT_RESOURCE_TYPE}" == "TOPIC" ] && [ "${AKHQ_RIGHT_PATTERN_TYPE}" == "PREFIXED" ]
+      elif [ "${AKHQ_RIGHT_PERMISSION_TYPE}" == "ALLOW" ] && [ "${AKHQ_RIGHT_RESOURCE_TYPE}" == "TOPIC" ] && [ "${AKHQ_RIGHT_PATTERN_TYPE}" == "PREFIXED" ]
       then
         akhq_create_prefixed_link "${AKHQ_RIGHT_OPERATION=}" "${AKHQ_RIGHT_TOPIC}" "${AKHQ_ACL_I_NAME}"
       fi
