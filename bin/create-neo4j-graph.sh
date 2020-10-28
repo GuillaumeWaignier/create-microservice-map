@@ -129,6 +129,7 @@ function execute_post_action {
     echo "[neo4J] Execute post action ${i}/${COUNT}"
     RES=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"${line}\"}]}"`
     displayNeo4jResult "${RES}" "${JSON}"
+    sleep 3
     i=$(( i+1 ))
   done
 
