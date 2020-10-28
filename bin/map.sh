@@ -153,6 +153,7 @@ function create_neo4j_graph {
   } 2>&1
 }
 
+
 if [ ! -z "${NEO4J_URL}" ]
 then
   check_neo4j

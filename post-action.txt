@@ -1,0 +1,1 @@
+MATCH (n:app) WHERE n.Name STARTS WITH 'user-' WITH COLLECT(n) AS nodes CALL apoc.refactor.rename.label('app','user',nodes) yield errorMessages AS eMessages RETURN eMessages

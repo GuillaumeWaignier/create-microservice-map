@@ -2,6 +2,7 @@
 
 if [ -z "${NEO4J_URL}" ]
 then
+  echo "[neo4J] Skip because no NEO4J_URL"
   exit 0
 fi
 
@@ -9,7 +10,7 @@ IFS="
 "
 
 
-echo "Create neo4J graph"
+
 
 function displayNeo4jResult {
 
@@ -117,11 +118,34 @@ function rename_node_label() {
 
 }
 
+function execute_post_action {
+  echo "[neo4J] Execute post action file ${NEO4J_POST_ACTION_FILE}"
+
+  COUNT=`cat "${NEO4J_POST_ACTION_FILE}" | wc -l`
+  i=1
+
+  for line in `cat "${NEO4J_POST_ACTION_FILE}"`
+  do
+    echo "[neo4J] Execute post action ${i}/${COUNT}"
+    RES=`curl -XPOST -s -u "${NEO4J_USER}:${NEO4J_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${NEO4J_URL}/db/${NEO4J_DB:-neo4j}/tx/commit -d "{\"statements\":[{\"statement\":\"${line}\"}]}"`
+    displayNeo4jResult "${RES}" "${JSON}"
+    i=$(( i+1 ))
+  done
+
+}
+
+
+echo "Create neo4J graph"
 
 clear_neo4j
 create_node
 create_link
 enriche_node
 rename_node_label
+if [ ! -z "${NEO4J_POST_ACTION_FILE}" ]
+then
+  execute_post_action
+fi
+
 
 echo "[neo4J] Graph create successfully. Open ${NEO4J_URL}"

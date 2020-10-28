@@ -78,7 +78,7 @@ All configurations are done with environment variables.
 |  NEO4J_DB          |  neo4j        | Database   |
 |  NEO4J_USER        |               | User login (optional)   |
 |  NEO4J_PASSWORD    |               | User password (optional)   |
-
+|  NEO4J_POST_ACTION_FILE|               | list of neo4j query executed at the end, such as tagging node as 'user' (optional)   |
 
 * API Management [Gravitee V1.x](https://www.gravitee.io/)
 
