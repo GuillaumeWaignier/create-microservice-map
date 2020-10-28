@@ -8,6 +8,7 @@ services:
       - NEO4J_DB=test
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=passwordSecure
+      - NEO4J_POST_ACTION_FILE=/post-action.txt
       - GRAVITEE_USER=admin
       - GRAVITEE_PASS=admin
       - GRAVITEE1_URL=http://management_api:8083
@@ -25,6 +26,8 @@ services:
       - neo4j
     ports:
       - 8081:80
+    volumes:
+      - ./post-action.txt:/post-action.txt:ro
     networks:
       - net
 
