@@ -125,9 +125,8 @@ The needed permissions is *Project Read Only*
 ## How it's work
 
 The tool calls the REST API of the various tools (Gravitee, AkHQ, Elastic, ...) in order to retrieve the ACLs configuration.
-Given this ACLs (read, write), a data graph is created inside __/var/www/html/graph.json__
-A very simple HTML page running in *nginx* display the graph. 
-A [Neo4J](https://neo4j.com) graph database is also populated.
+Given this ACLs (read, write), a data graph is created.
+A [Neo4J](https://neo4j.com) graph database is populated.
 
 ## Test
 
@@ -171,11 +170,7 @@ You can create the graph with
 docker-compose up -d
 ```
 
-Then open the simple JS graph at [http://localhost:8081](http://localhost:8081).
-
-![Graphe](./graph.png)
-
-Or open the neo4j graph at [http://localhost:7474](http://localhost:7474).
+Then open the neo4j graph at [http://localhost:7474](http://localhost:7474).
 
 # Neo4j
 
