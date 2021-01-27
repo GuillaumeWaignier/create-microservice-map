@@ -82,6 +82,12 @@ function create_neo4j_graph {
   } 2>&1
 }
 
+function create_orientdb_graph {
+  {
+    ./create-orientdb-graph.sh
+  } 2>&1
+}
+
 
 if [ ! -z "${NEO4J_URL}" ]
 then
@@ -92,5 +98,6 @@ fi
 clean
 collect
 create_node
-create_neo4j_graph
+#create_neo4j_graph
+create_orientdb_graph
 
