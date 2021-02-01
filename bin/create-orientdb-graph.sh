@@ -33,7 +33,7 @@ function clear_orientdb {
 
 function create_class {
 
-  for class in "api" "mongo" "topic" "app"
+  for class in "api" "mongo" "topic" "app" "kconnect" "user"
   do
     echo "[orientdb] Create vertex class ${class}"
     JSON="{\"command\":\"CREATE CLASS ${class} EXTENDS V\"}"
@@ -50,6 +50,25 @@ function create_class {
   done
 }
 
+function config_studio_ui {
+  echo "[orientdb] Config studio"
+
+  # Create class for studio
+  JSON="{\"command\":\"CREATE CLASS _studio\"}"
+  RES=`curl -s -XPOST -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/command/${ORIENTDB_DB}/sql -d "${JSON}"`
+  displayOrientdbResult "${RES}" "${JSON}"
+
+  # Get user admin
+  JSON="{\"command\":\"SELECT FROM OUser WHERE name=\\\"admin\\\"\"}"
+  RESULT=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/command/${ORIENTDB_DB}/sql -d "${JSON}"`
+  ID_USER=`echo "${RESULT}" | jq -r '.result[]."@rid"'`
+
+  STUDIO_CONF='{"width":1602.011364,"height":500,"classes":{"call":{"stroke":"#b28254"},"consume":{"stroke":"#1e701e"},"write":{"stroke":"#623c34"},"api":{"fill":"#ff8339","stroke":"#798ba2","iconCss":null,"icon":null,"display":"Name"},"app":{"fill":"#fe4444","stroke":"#b25809","iconCss":null,"icon":null,"display":"Name"},"topic":{"fill":"#d786d3","stroke":"#897b95","iconCss":null,"icon":null,"display":"Name"},"mongo":{"fill":"#63c8ff","stroke":"#951b1c","iconCss":null,"icon":null,"display":"Name"},"produce":{"stroke":"#b26a69"},"kconnect":{"fill":"#98df8a","stroke":"#6a9c60","iconCss":null,"icon":null,"display":"Name"},"user":{"fill":"#8c564b","stroke":"#623c34","iconCss":null,"icon":null,"display":"Name"}},"node":{"r":30},"linkDistance":200,"charge":-1000,"friction":0.9,"gravity":0.1}'
+
+  JSON="{\"@class\":\"_studio\",\"@type\":\"d\",\"@version\":3,\"type\":\"GraphConfig\",\"config\":${STUDIO_CONF},\"user\":${ID_USER}}"
+  RES=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/document/${ORIENTDB_DB} -d "${JSON}"`
+  displayOrientdbResult "${RES}" "${JSON}"
+}
 
 function create_node {
 
@@ -112,21 +131,20 @@ function create_link {
 
 function rename_node_label() {
 
-#MOVE VERTEX (SELECT FROM `Entity`) TO CLASS:StageOneEntity
-
   echo "[orientdb] Rename node label"
-  RESULT=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/db/${ORIENTDB_DB}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:app) WHERE n.label IS NOT NULL WITH DISTINCT n.label AS label RETURN label\"}]}"`
+  JSON="{\"command\":\"SELECT DISTINCT label FROM app WHERE label IS NOT NULL\"}"
+  RESULT=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/command/${ORIENTDB_DB}/sql -d "${JSON}"`
 
-  LABELS_TO_RENAME=`echo "${RESULT}" | jq ".results[0].data"`
-  LABELS_TO_RENAME_COUNT=`echo "${LABELS_TO_RENAME}" | jq length`
+  LABELS_TO_RENAME=`echo "${RESULT}" | jq -r ".result[].label"`
+  LABELS_TO_RENAME_COUNT=`echo "${LABELS_TO_RENAME}" | wc -l`
 
   i=0
-  while [ "$i" -lt "${LABELS_TO_RENAME_COUNT}" ]
+  for LABEL_TO_RENAME in ${LABELS_TO_RENAME}
   do
-    LABEL_TO_RENAME=`echo "${LABELS_TO_RENAME}" | jq -r ".[$i].row[]"`
     echo "[orientdb] Rename label ${LABEL_TO_RENAME} : ${i}/${LABELS_TO_RENAME_COUNT}"
 
-    RES=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/db/${ORIENTDB_DB}/tx/commit -d "{\"statements\":[{\"statement\":\"MATCH (n:app{label:'${LABEL_TO_RENAME}'}) WITH COLLECT(n) AS nodes CALL apoc.refactor.rename.label('app','${LABEL_TO_RENAME}',nodes) yield errorMessages AS eMessages RETURN eMessages\"}]}"`
+    JSON="{\"command\":\"MOVE VERTEX (SELECT FROM app WHERE label=\\\"${LABEL_TO_RENAME}\\\") TO CLASS:${LABEL_TO_RENAME}\"}"
+    RES=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/command/${ORIENTDB_DB}/sql -d "${JSON}"`
     displayOrientdbResult "${RES}" "${JSON}"
 
     i=$(( i+1 ))
@@ -143,9 +161,9 @@ function execute_post_action {
   for line in `cat "${ORIENTDB_POST_ACTION_FILE}"`
   do
     echo "[orientdb] Execute post action ${i}/${COUNT}"
-    RES=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/db/${ORIENTDB_DB}/tx/commit -d "{\"statements\":[{\"statement\":\"${line}\"}]}"`
+    JSON="{\"command\":\"${line}\"}"
+    RES=`curl -XPOST -s -u "${ORIENTDB_USER}:${ORIENTDB_PASSWORD}" -H "Content-Type:application/json;charset=UTF-8" ${ORIENTDB_URL}/command/${ORIENTDB_DB}/sql -d "${JSON}"`
     displayOrientdbResult "${RES}" "${JSON}"
-    sleep 10
     i=$(( i+1 ))
   done
 
@@ -156,13 +174,14 @@ echo "Create orientdb graph"
 
 clear_orientdb
 create_class
+config_studio_ui
 create_node
 create_link
-#rename_node_label
-#if [ ! -z "${ORIENTDB_POST_ACTION_FILE}" ]
-#then
-#  execute_post_action
-#fi
+rename_node_label
+if [ ! -z "${ORIENTDB_POST_ACTION_FILE}" ]
+then
+  execute_post_action
+fi
 
 
 echo "[orientdb] Graph create successfully. Open ${ORIENTDB_URL}"

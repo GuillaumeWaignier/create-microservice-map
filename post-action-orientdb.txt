@@ -1,0 +1,1 @@
+MOVE VERTEX (SELECT FROM app WHERE Name LIKE 'user-%') TO CLASS:user
