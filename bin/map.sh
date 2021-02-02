@@ -98,6 +98,6 @@ fi
 clean
 collect
 create_node
-#create_neo4j_graph
+create_neo4j_graph
 create_orientdb_graph
 
