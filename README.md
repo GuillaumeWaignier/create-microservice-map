@@ -16,7 +16,18 @@ services:
     image: "ianitrix/create-microservice-map:latest"
     hostname: create-microservice-map
     environment:
+      # neo4j backend
       - NEO4J_URL=http://neo4j:7474
+      - NEO4J_DB=test
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=passwordSecure
+      - NEO4J_POST_ACTION_FILE=/post-action-neo4j.txt
+      # orientdb backend
+      - ORIENTDB_URL=http://orientdb:2480
+      - ORIENTDB_DB=test
+      - ORIENTDB_USER=root
+      - ORIENTDB_PASSWORD=root
+      - ORIENTDB_POST_ACTION_FILE=/post-action-orientdb.txt
       # Gravitee Configuration
       - GRAVITEE1_URL=http://management_api:8083
       - GRAVITEE_USER=admin
@@ -44,7 +55,9 @@ services:
     hostname: neo4j
     restart: on-failure
     environment:
-      - NEO4J_AUTH=none
+      # - NEO4J_AUTH=none
+      - NEO4J_AUTH=neo4j/passwordSecure
+      - NEO4J_dbms_default__database=test
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
@@ -55,14 +68,25 @@ services:
     networks:
       - net
 
+  orientdb:
+    image: "orientdb:3.1.7"
+    hostname: orientdb
+    restart: on-failure
+    environment:
+      - ORIENTDB_ROOT_PASSWORD=root
+    ports:
+      - 2480:2480
+      - 2424:2424
+    networks:
+      - net
+
 networks:
   net:
     name: net    
 ```
 
-Then open the following URL to display the graph JS [http://localhost:8080](http://localhost:8080)
-or open this url [http://localhost:7474](http://localhost:7474) for the [Neo4J](https://neo4j.com) graph.
-
+Then open the following URL [http://localhost:7474](http://localhost:7474) for the [Neo4J](https://neo4j.com) graph.
+Or open [http://localhost:2480](http://localhost:2480) for the [orientdb](https://www.orientdb.org) graph.
 
 
 
@@ -70,15 +94,27 @@ or open this url [http://localhost:7474](http://localhost:7474) for the [Neo4J](
 
 All configurations are done with environment variables.
 
+> Each plugin is enable only if the URL is set
+
 * Storage [Neo4J](https://neo4j.com)
 
 | Configuration      | Default value | Comment  |
 | ------------------ |:-------------:| -----:|
-|  NEO4J_URL         |               | Neo4J URL|
+|  NEO4J_URL         |               | Neo4J URL (enable only if the URL is set)|
 |  NEO4J_DB          |  neo4j        | Database   |
 |  NEO4J_USER        |               | User login (optional)   |
 |  NEO4J_PASSWORD    |               | User password (optional)   |
-|  NEO4J_POST_ACTION_FILE|               | list of neo4j query executed at the end, such as tagging node as 'user' (optional)   |
+|  NEO4J_POST_ACTION_FILE|           | list of neo4j query executed at the end, such as tagging node as 'user' (optional)   |
+
+* Storage [orientdb](https://www.orientdb.org)
+
+| Configuration      | Default value | Comment  |
+| ------------------ |:-------------:| -----:|
+|  ORIENTDB_URL         |               | Orientdb URL (enable only if the URL is set)|
+|  ORIENTDB_DB          |               | Database   |
+|  ORIENTDB_USER        |               | User login (optional)   |
+|  ORIENTDB_PASSWORD    |               | User password (optional)   |
+|  ORIENTDB_POST_ACTION_FILE|           | list of orientdb query executed at the end, such as tagging node as 'user' (optional)   |
 
 * API Management [Gravitee V1.x](https://www.gravitee.io/)
 
