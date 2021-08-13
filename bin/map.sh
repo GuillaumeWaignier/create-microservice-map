@@ -6,9 +6,9 @@ base_dir=$(dirname $0)
 IFS="
 "
 
-export OUTPUT_FILE="${base_dir}/links.json"
-export NODES_FILE="${base_dir}/nodes.json"
-export ENRICHED_NODES_FILE="${base_dir}/enrichedNodes.csv"
+export OUTPUT_FILE="/tmp/links.json"
+export NODES_FILE="/tmp/nodes.json"
+export ENRICHED_NODES_FILE="/tmp/enrichedNodes.csv"
 
 function clean {
   echo -n "" > ${OUTPUT_FILE}
